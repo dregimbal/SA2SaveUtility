@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 
-namespace SA2SaveUtility
-{
-    class Offsets
-    {
+namespace SA2SaveUtility {
+    class Offsets {
         public ChaoWorld chaoSave = new ChaoWorld();
         public Save main = new Save();
         public Chao chao = new Chao();
@@ -14,8 +12,7 @@ namespace SA2SaveUtility
         public int mainMemoryStart = 0x1DE9DC0;
     }
 
-    class ChaoWorld
-    {
+    class ChaoWorld {
         public uint GardensRTE = 0x19F646C;
         public uint Gardens = 0x304C;
         public uint MarketCountRTE = 0x1DBED90;
@@ -214,8 +211,7 @@ namespace SA2SaveUtility
         };
     }
 
-    class Kart
-    {
+    class Kart {
         public uint FirstT = 0x00;
         public uint FirstC = 0x03;
         public uint SecondT = 0x04;
@@ -225,16 +221,14 @@ namespace SA2SaveUtility
         public uint Emblem = 0x0C;
     }
 
-    class Boss
-    {
+    class Boss {
         public uint Emblem = 0x00;
         public uint FirstT = 0x18;
         public uint SecondT = 0x24;
         public uint ThirdT = 0x30;
     }
 
-    class Mission
-    {
+    class Mission {
         public uint M1 = 0x00;
         public uint M2 = 0x01;
         public uint M3 = 0x02;
@@ -262,8 +256,7 @@ namespace SA2SaveUtility
         public uint M5T = 0xA8;
     }
 
-    class Chao
-    {
+    class Chao {
         public uint Name = 0x12;
         public uint SwimBar = 0x20;
         public uint FlyBar = 0x21;

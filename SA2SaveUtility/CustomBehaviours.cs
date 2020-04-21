@@ -40,7 +40,7 @@ namespace SA2SaveUtility {
                 } else if (index < 0) {
                     Debug.WriteLine("Index is being set too low for item " + c.Name + " (" + index + " should be greater than 0), setting it to the first item");
                     c.SelectedIndex = 0;
-                } else { 
+                } else {
                     c.SelectedIndex = index;
                 }
             }

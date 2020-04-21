@@ -3,10 +3,8 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace SA2SaveUtility
-{
-    class Memory
-    {
+namespace SA2SaveUtility {
+    class Memory {
 
         public static bool connected { get; set; }
 
@@ -26,12 +24,10 @@ namespace SA2SaveUtility
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool WriteProcessMemory(int hProcess, int lpBaseAddress, byte[] lpBuffer, int dwSize, ref int lpNumberOfBytesWritten);
 
-        public static byte[] ReadBytes(int address, int length)
-        {
+        public static byte[] ReadBytes(int address, int length) {
             byte[] bytes = new byte[length];
             Process process = new Process();
-            try
-            {
+            try {
                 process = Process.GetProcessesByName("sonic2app")[0];
 
                 IntPtr processHandle = OpenProcess(PROCESS_WM_READ, false, process.Id);
@@ -41,9 +37,7 @@ namespace SA2SaveUtility
                 ReadProcessMemory((int)processHandle, address, bytes, length, ref bytesRead);
 
                 connected = true;
-            }
-            catch
-            {
+            } catch {
                 MessageBox.Show("Couldn't read from Sonic Adventure 2 Process.", "Error reading from process", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 connected = false;
             }
@@ -51,11 +45,9 @@ namespace SA2SaveUtility
             return bytes;
         }
 
-        public static void WriteByteAtAddress(int address, byte toWrite)
-        {
+        public static void WriteByteAtAddress(int address, byte toWrite) {
             Process process = new Process();
-            try
-            {
+            try {
                 process = Process.GetProcessesByName("sonic2app")[0];
 
                 IntPtr processHandle = OpenProcess(PROCESS_ALL_ACCESS, false, process.Id);
@@ -68,19 +60,15 @@ namespace SA2SaveUtility
 
                 WriteProcessMemory((int)processHandle, address, toWriteArray, toWriteArray.Length, ref bytesWritten);
                 connected = true;
-            }
-            catch
-            {
+            } catch {
                 MessageBox.Show("Couldn't write to Sonic Adventure 2 Process.", "Error writing to process", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 connected = false;
             }
         }
 
-        public static void WriteBytesAtAddress(int address, byte[] toWrite)
-        {
+        public static void WriteBytesAtAddress(int address, byte[] toWrite) {
             Process process = new Process();
-            try
-            {
+            try {
                 process = Process.GetProcessesByName("sonic2app")[0];
 
                 IntPtr processHandle = OpenProcess(PROCESS_ALL_ACCESS, false, process.Id);
@@ -89,9 +77,7 @@ namespace SA2SaveUtility
 
                 WriteProcessMemory((int)processHandle, address, toWrite, toWrite.Length, ref bytesWritten);
                 connected = true;
-            }
-            catch
-            {
+            } catch {
                 MessageBox.Show("Couldn't write to Sonic Adventure 2 Process.", "Error writing to process", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 connected = false;
             }
