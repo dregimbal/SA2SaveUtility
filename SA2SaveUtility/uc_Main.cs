@@ -440,7 +440,9 @@ namespace SA2SaveUtility
             time += (int)(nud_EmblemMinute.Value * 3600);
             time += (int)(nud_EmblemSecond.Value * 60);
 
-            Main.WriteBytes((int)offsets.main.EmblemResultsTime, BitConverter.GetBytes(time), mainIndex, 4);
+            byte[] timeBytes = BitConverter.GetBytes(time);
+            Array.Reverse(timeBytes);
+            Main.WriteBytes((int)offsets.main.EmblemResultsTime, timeBytes, mainIndex, 4);
         }
 
         private void Nud_EmblemMinute_ValueChanged(object sender, EventArgs e)
@@ -450,7 +452,9 @@ namespace SA2SaveUtility
             time += (int)(nud_EmblemMinute.Value * 3600);
             time += (int)(nud_EmblemSecond.Value * 60);
 
-            Main.WriteBytes((int)offsets.main.EmblemResultsTime, BitConverter.GetBytes(time), mainIndex, 4);
+            byte[] timeBytes = BitConverter.GetBytes(time);
+            Array.Reverse(timeBytes);
+            Main.WriteBytes((int)offsets.main.EmblemResultsTime, timeBytes, mainIndex, 4);
         }
 
         private void Nud_EmblemSecond_ValueChanged(object sender, EventArgs e)
@@ -459,8 +463,9 @@ namespace SA2SaveUtility
             time += (int)(nud_EmblemHour.Value * 216000);
             time += (int)(nud_EmblemMinute.Value * 3600);
             time += (int)(nud_EmblemSecond.Value * 60);
-
-            Main.WriteBytes((int)offsets.main.EmblemResultsTime, BitConverter.GetBytes(time), mainIndex, 4);
+            byte[] timeBytes = BitConverter.GetBytes(time);
+            Array.Reverse(timeBytes);
+            Main.WriteBytes((int)offsets.main.EmblemResultsTime, timeBytes, mainIndex, 4);
         }
 
         private void Nud_GCFileNumber_ValueChanged(object sender, EventArgs e)
@@ -470,8 +475,14 @@ namespace SA2SaveUtility
 
         private void Cb_Text_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (!Main.isRTE) { Main.WriteByte((int)offsets.main.TextLanguage, cb_Text.SelectedIndex, mainIndex); }
-            else { Memory.WriteByteAtAddress((int)offsets.main.TextLanguageRTE, (byte)cb_Text.SelectedIndex); }
+            if (!Main.isRTE) {
+
+                if (Main.isGC) {
+                    Main.WriteByte((int)offsets.main.TextLanguageGC, cb_Text.SelectedIndex, mainIndex);
+                } else {
+                    Main.WriteByte((int)offsets.main.TextLanguage, cb_Text.SelectedIndex, mainIndex);
+                }
+            } else { Memory.WriteByteAtAddress((int)offsets.main.TextLanguageRTE, (byte)cb_Text.SelectedIndex); }
         }
 
         private void Cb_Voice_SelectedIndexChanged(object sender, EventArgs e)

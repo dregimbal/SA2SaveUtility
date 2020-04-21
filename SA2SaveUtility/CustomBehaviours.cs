@@ -19,12 +19,11 @@ namespace SA2SaveUtility {
                         ((NumericUpDown)c).Value = value;
                     } else {
                         int number = BitConverter.ToInt32(BitConverter.GetBytes(value).Reverse().ToArray(), 0);
-                        Debug.WriteLine(((NumericUpDown)c).Name + " cannot be set to " + value + " it should be between " + ((NumericUpDown)c).Minimum + " and " + ((NumericUpDown)c).Maximum);
                         if (minimum <= number && maximum >= number) {
-                            Debug.WriteLine("This might be an \"endian\" issue, setting the value to " + number);
+                            Debug.WriteLine(((NumericUpDown)c).Name + " cannot be set to " + value + " it should be between " + ((NumericUpDown)c).Minimum + " and " + ((NumericUpDown)c).Maximum + ". This might be an \"endian\" issue, setting the value to " + number);
                             ((NumericUpDown)c).Value = number;
                         } else {
-                            Debug.WriteLine("Cannot set the value to " + number);
+                            Debug.WriteLine(((NumericUpDown)c).Name + " cannot be set to " + value + " or " + number + ", it should be between " + ((NumericUpDown)c).Minimum + " and " + ((NumericUpDown)c).Maximum);
                         }
                     }
                 }
@@ -36,9 +35,12 @@ namespace SA2SaveUtility {
             if (Main.isRTE && Main.rteUpdates) { denyChange = c.Focused; }
             if (c.SelectedIndex != index && !denyChange) {
                 if (index > c.Items.Count) {
-                    Debug.WriteLine("Index " + index + " is too high (should be less than " + c.Items.Count + "), setting it to the last item - " + c.Name);
-                    c.SelectedIndex = c.Items.Count;
-                } else {
+                    Debug.WriteLine("Index is being set too high for item " + c.Name + " (" + index + " should be less than " + c.Items.Count + "), setting it to the last item");
+                    c.SelectedIndex = c.Items.Count - 1;
+                } else if (index < 0) {
+                    Debug.WriteLine("Index is being set too low for item " + c.Name + " (" + index + " should be greater than 0), setting it to the first item");
+                    c.SelectedIndex = 0;
+                } else { 
                     c.SelectedIndex = index;
                 }
             }

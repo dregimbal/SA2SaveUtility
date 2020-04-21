@@ -1,142 +1,69 @@
 ﻿using System.Collections.Generic;
 
-namespace SA2SaveUtility
-{
-    class Offsets
-    {
-        public ChaoWorld chaoSave = new ChaoWorld();
-        public Save main = new Save();
-        public Chao chao = new Chao();
-        public Mission mission = new Mission();
-        public Kart kart = new Kart();
-        public Boss boss = new Boss();
-        public int chaoMemoryStart = 0x19F6EC4;
-        public int mainMemoryStart = 0x1DE9DC0;
-    }
-
-    class ChaoWorld
-    {
-        public uint GardensRTE = 0x19F646C;
-        public uint Gardens = 0x304C;
-        public uint MarketCountRTE = 0x1DBED90;
-        public uint MarketCount = 0x3A50;
-        public uint HeldCountRTE = 0x1DBEDAC;
-        public uint HeldCount = 0x3A54;
-        public uint MarketItemsStartRTE = 0x1DBEDC0;
-        public uint MarketItemsStart = 0x3A58;
-        public uint HeldItemsStartRTE = 0x1DBEDA0;
-        public uint HeldItemsStart = 0x3A98;
-    }
-
-    class Save {
-        public uint TextLanguageGC = 0x2849;
+namespace SA2SaveUtility {
+    class SavedValues {
         public uint TextLanguage = 0x2849;
-        public uint TextLanguageRTE = 0x174AFD1;
+        public uint VoiceLanguage = 0x284A;
         public uint EmblemCount = 0x284E;
         public uint Lives = 0x285C;
-        public uint LivesRTE = 0x174B024;
-        //Time is an integer, 0x01 = 1 60th of a second
         public uint EmblemResultsTime = 0x2868;
         public uint PlayTime = 0x286C;
         public uint Rings = 0x2870;
-        public uint RingsRTE = 0x174B05C;
-        public uint VoiceLanguageGC = 0x284A;
-        public uint VoiceLanguage = 0x284A;
-        public uint VoiceLanguageRTE = 0x174AFD2;
         public uint GreenHill = 0x4034;
-
-        public uint ChaoWorldSonic = 0x5A69;
-        public uint ChaoWorldTails = 0x5A6F;
-        public uint ChaoWorldKnuckles = 0x5A6D;
-        public uint ChaoWorldShadow = 0x5A6A;
-        public uint ChaoWorldEggman = 0x5A70;
-        public uint ChaoWorldRouge = 0x5A6E;
-
         public uint ChaoRaceBeginner = 0x5A64;
         public uint ChaoRaceJewel = 0x5A65;
         public uint ChaoRaceChallenge = 0x5A66;
         public uint ChaoRaceHero = 0x5A67;
         public uint ChaoRaceDark = 0x5A68;
-
+        public uint ChaoWorldSonic = 0x5A69;
+        public uint ChaoWorldShadow = 0x5A6A;
+        public uint ChaoWorldKnuckles = 0x5A6D;
+        public uint ChaoWorldRouge = 0x5A6E;
+        public uint ChaoWorldTails = 0x5A6F;
+        public uint ChaoWorldEggman = 0x5A70;
         public uint ChaoKarateBeginner = 0x5A71;
         public uint ChaoKarateStandard = 0x5A72;
         public uint ChaoKarateExpert = 0x5A73;
         public uint ChaoKarateSuper = 0x5A74;
         public uint ChaoKarateSuperUnlocked = 0x5A75;
-
-
-
         public uint SonicLightShoes = 0x5A77;
-        public uint SonicLightShoesRTE = 0x1DEB300;
         public uint SonicAncientLight = 0x5A78;
-        public uint SonicAncientLightRTE = 0x1DEB301;
         public uint SonicMagic = 0x5A79;
-        public uint SonicMagicRTE = 0x1DEB302;
         public uint SonicFlame = 0x5A7A;
-        public uint SonicFlameRTE = 0x1DEB303;
         public uint SonicBounce = 0x5A7B;
-        public uint SonicBounceRTE = 0x1DEB304;
         public uint SonicMM = 0x5A7C;
-        public uint SonicMMRTE = 0x1DEB305;
-
         public uint TailsBooster = 0x5A7D;
-        public uint TailsBoosterRTE = 0x1DEB306;
         public uint TailsBazooka = 0x5A7E;
-        public uint TailsBazookaRTE = 0x1DEB307;
         public uint TailsLaser = 0x5A7F;
-        public uint TailsLaserRTE = 0x1DEB308;
         public uint TailsMM = 0x5A80;
-        public uint TailsMMRTE = 0x1DEB309;
-
         public uint KnucklesShovel = 0x5A81;
-        public uint KnucklesShovelRTE = 0x1DEB30A;
         public uint KnucklesSun = 0x5A82;
-        public uint KnucklesSunRTE = 0x1DEB30B;
         public uint KnucklesHammer = 0x5A83;
-        public uint KnucklesHammerRTE = 0x1DEB30C;
         public uint KnucklesAir = 0x5A84;
-        public uint KnucklesAirRTE = 0x1DEB30D;
         public uint KnucklesMM = 0x5A85;
-        public uint KnucklesMMRTE = 0x1DEB30E;
-
         public uint ShadowAir = 0x5A87;
-        public uint ShadowAirRTE = 0x1DEB310;
         public uint ShadowAncientLight = 0x5A88;
-        public uint ShadowAncientLightRTE = 0x1DEB311;
         public uint ShadowFlame = 0x5A89;
-        public uint ShadowFlameRTE = 0x1DEB312;
         public uint ShadowMM = 0x5A8A;
-        public uint ShadowMMRTE = 0x1DEB313;
-
         public uint EggmanJet = 0x5A8B;
-        public uint EggmanJetRTE = 0x1DEB314;
         public uint EggmanCannon = 0x5A8C;
-        public uint EggmanCannonRTE = 0x1DEB315;
         public uint EggmanLaser = 0x5A8D;
-        public uint EggmanLaserRTE = 0x1DEB316;
         public uint EggmanArmor = 0x5A8E;
-        public uint EggmanArmorRTE = 0x1DEB317;
         public uint EggmanMM = 0x5A8F;
-        public uint EggmanMMRTE = 0x1DEB318;
-
         public uint RougePick = 0x5A90;
-        public uint RougePickRTE = 0x1DEB319;
         public uint RougeTreasure = 0x5A91;
-        public uint RougeTreasureRTE = 0x1DEB31A;
         public uint RougeBoots = 0x5A92;
-        public uint RougeBootsRTE = 0x1DEB31B;
         public uint RougeMM = 0x5A93;
-        public uint RougeMMRTE = 0x1DEB31C;
-
+        public uint KartSonic = 0x5AD3;
+        public uint KartTails = 0x5AD4;
+        public uint KartKnuckles = 0x5AD5;
+        public uint KartShadow = 0x5AD6;
+        public uint KartEggman = 0x5AD7;
+        public uint KartRouge = 0x5AD8;
         public uint ThemeAmy = 0x5ADB;
-        public uint ThemeAmyRTE = 0x1D7BA75;
         public uint ThemeMaria = 0x5ADC;
-        public uint ThemeMariaRTE = 0x1D7BA68;
         public uint ThemeSecretary = 0x5ADD;
-        public uint ThemeSecretaryRTE = 0x1D7BA6C;
         public uint ThemeOmochao = 0x5ADE;
-        public uint ThemeOmochaoRTE = 0x1D7BA70;
-
         public uint AllASonic = 0x5CCD;
         public uint AllAShadow = 0x5CCE;
         public uint AllATails = 0x5CCF;
@@ -150,103 +77,20 @@ namespace SA2SaveUtility
         public uint BossAttackDark = 0x5CD7;
         public uint BossAttackAll = 0x5CD8;
         public uint AllACannonsCore = 0x5CD9;
-
-        public uint KartSonic = 0x5AD3;
-        public uint KartSonicRTE = 0x01DEB35C;
-        public uint KartTails = 0x5AD4;
-        public uint KartTailsRTE = 0x01DEB35D;
-        public uint KartKnuckles = 0x5AD5;
-        public uint KartKnucklesRTE = 0x01DEB35E;
-        public uint KartShadow = 0x5AD6;
-        public uint KartShadowRTE = 0x01DEB35F;
-        public uint KartEggman = 0x5AD7;
-        public uint KartEggmanRTE = 0x01DEB360;
-        public uint KartRouge = 0x5AD8;
-        public uint KartRougeRTE = 0x01DEB361;
-
-        public Dictionary<string, uint> MissionOffsets = new Dictionary<string, uint>()
-        {
-            { "City Escape", 0x326C },
-            { "Wild Canyon", 0x34B8 },
-            { "Prison Lane", 0x2F5C },
-            { "Metal Harbour", 0x3020 },
-            { "Green Forest", 0x2AC4 },
-            { "Pumpkin Hill", 0x2C4C },
-            { "Mission Street", 0x357C },
-            { "Aquatic Mine", 0x2DD4 },
-            { "Route 101", 0x5668 },
-            { "Hidden Base", 0x3A14 },
-            { "Pyramid Cave", 0x3DE8 },
-            { "Death Chamber", 0x3B9C },
-            { "Eternal Engine", 0x3AD8 },
-            { "Meteor Herd", 0x40F8 },
-            { "Crazy Gadget", 0x3950 },
-            { "Final Rush", 0x3F70 },
-
-            { "Iron Gate", 0x30E4 },
-            { "Dry Lagoon", 0x3640 },
-            { "Sand Ocean", 0x388C },
-            { "Radical Highway", 0x3330 },
-            { "Egg Quarters", 0x3C60 },
-            { "Lost Colony", 0x3D24 },
-            { "Weapons Bed", 0x31A8 },
-            { "Security Hall", 0x2E98 },
-            { "White Jungle", 0x2B88 },
-            { "Route 202", 0x572C },
-            { "Sky Rail", 0x2D10 },
-            { "Mad Space", 0x4A28 },
-            { "Cosmic Wall", 0x4964 },
-            { "Final Chase", 0x4718 },
-
-            { "Cannon's Core", 0x4280 }
-        };
-        public Dictionary<string, uint> KartOffsets = new Dictionary<string, uint>()
-        {
-            { "Kart Racing - Beginner", 0x57F0 },
-            { "Kart Racing - Standard", 0x57FD },
-            { "Kart Racing - Expert", 0x580A }
-        };
-        public Dictionary<string, KeyValuePair<uint, uint>> BossOffsets = new Dictionary<string, KeyValuePair<uint, uint>>()
-        {
-            { "Boss Attack - Hero", new KeyValuePair<uint, uint>(0x5818, 0x5CD5) },
-            { "Boss Attack - Dark", new KeyValuePair<uint, uint>(0x58DC, 0x5CD6) },
-            { "Boss Attack - All", new KeyValuePair<uint, uint>(0x59A0, 0x5CD7) }
-        };
     }
-
-    class Kart
-    {
-        public uint FirstT = 0x00;
-        public uint FirstC = 0x03;
-        public uint SecondT = 0x04;
-        public uint SecondC = 0x07;
-        public uint ThirdT = 0x08;
-        public uint ThirdC = 0x0B;
-        public uint Emblem = 0x0C;
-    }
-
-    class Boss
-    {
-        public uint Emblem = 0x00;
-        public uint FirstT = 0x18;
-        public uint SecondT = 0x24;
-        public uint ThirdT = 0x30;
-    }
-
-    class Mission
-    {
+    public class MissionValues {
         public uint M1 = 0x00;
         public uint M2 = 0x01;
         public uint M3 = 0x02;
         public uint M4 = 0x03;
         public uint M5 = 0x04;
-        public uint M1P = 0x06; //Max - 65535
+        public uint M1P = 0x06;
         public uint M2P = 0x08;
         public uint M3P = 0x0A;
         public uint M4P = 0x0C;
         public uint M5P = 0x0E;
-        public uint M1R = 0x10; //Max - 32767
-        public uint M1S = 0x14; //Max - 99999999
+        public uint M1R = 0x10;
+        public uint M1S = 0x14;
         public uint M1T = 0x18;
         public uint M2R = 0x34;
         public uint M2S = 0x38;
@@ -261,9 +105,27 @@ namespace SA2SaveUtility
         public uint M5S = 0xA4;
         public uint M5T = 0xA8;
     }
+    public class KartValues {
+        public uint FirstT = 0x00;
+        public uint FirstC = 0x03;
+        public uint SecondT = 0x04;
+        public uint SecondC = 0x07;
+        public uint ThirdT = 0x08;
+        public uint ThirdC = 0x0B;
+        public uint Emblem = 0x0C;
 
-    class Chao
-    {
+    }
+
+
+    class BossValues {
+        public uint Emblem = 0x00;
+        public uint FirstT = 0x18;
+        public uint SecondT = 0x24;
+        public uint ThirdT = 0x30;
+    }
+
+
+    class ChaoValues {
         public uint Name = 0x12;
         public uint SwimBar = 0x20;
         public uint FlyBar = 0x21;

@@ -103,12 +103,34 @@ namespace SA2SaveUtility
             if (!Main.isPC && !Main.isGC) { save = save.Skip(0x04).ToArray(); }
 
             int playTime = 0;
-            if (Main.isPC) { playTime = BitConverter.ToInt32(save.Skip(Convert.ToInt32(offsets.main.PlayTime)).Take(4).ToArray(), 0); }
-            else { playTime = BitConverter.ToInt32(save.Skip(Convert.ToInt32(offsets.main.PlayTime)).Take(4).Reverse().ToArray(), 0); }
+            if (Main.isPC) {
+                playTime = BitConverter.ToInt32(save.Skip(Convert.ToInt32(offsets.main.PlayTime)).Take(4).ToArray(), 0); 
+            } else {
+                playTime = BitConverter.ToInt32(save.Skip(Convert.ToInt32(offsets.main.PlayTime)).Take(4).Reverse().ToArray(), 0);
+            }
+            TimeSpan playTimeSpan = TimeSpan.FromSeconds(playTime/60);
+            Debug.WriteLine("playTime: " + (int)playTimeSpan.TotalHours + ":" + playTimeSpan.Minutes + ":" + playTimeSpan.Seconds);
 
             int emblemTime = 0;
             if (Main.isPC) { emblemTime = BitConverter.ToInt32(save.Skip(Convert.ToInt32(offsets.main.EmblemResultsTime)).Take(4).ToArray(), 0); }
             else { emblemTime = BitConverter.ToInt32(save.Skip(Convert.ToInt32(offsets.main.EmblemResultsTime)).Take(4).Reverse().ToArray(), 0); }
+
+            TimeSpan emblemTimeSpan = TimeSpan.FromSeconds(emblemTime / 60);
+            Debug.WriteLine("emblemTime: " + (int)emblemTimeSpan.TotalHours + ":" + emblemTimeSpan.Minutes + ":" + emblemTimeSpan.Seconds);
+            if (emblemTimeSpan.TotalSeconds < 0) {
+
+                if (!Main.isPC) {
+                    emblemTime = BitConverter.ToInt32(save.Skip(Convert.ToInt32(offsets.main.EmblemResultsTime)).Take(4).ToArray(), 0); 
+                } else {
+                    emblemTime = BitConverter.ToInt32(save.Skip(Convert.ToInt32(offsets.main.EmblemResultsTime)).Take(4).Reverse().ToArray(), 0); 
+                }
+                emblemTimeSpan = TimeSpan.FromSeconds(emblemTime / 60);
+                Debug.WriteLine("emblemTime: " + (int)emblemTimeSpan.TotalHours + ":" + emblemTimeSpan.Minutes + ":" + emblemTimeSpan.Seconds);
+
+                if (emblemTimeSpan.TotalSeconds < 0) {
+                    Debug.WriteLine("emblemTime is broken!");   
+                }
+             }
 
             int lives = 0;
             if (Main.isPC)
@@ -127,14 +149,26 @@ namespace SA2SaveUtility
             else { rings = BitConverter.ToInt32(save.Skip(Convert.ToInt32(offsets.main.Rings)).Take(4).Reverse().ToArray(), 0); }
 
             int textLang = 0;
-            if (!Main.isRTE) { textLang = (int)save[offsets.main.TextLanguage]; }
-            else { textLang = (int)Memory.ReadBytes(Convert.ToInt32(offsets.main.TextLanguageRTE), 1).First(); }
+            if (!Main.isRTE) {
+                if (Main.isGC) {
+                    textLang = (int)save[offsets.main.TextLanguageGC];
+                    Debug.WriteLine("GC language int is " + textLang);
+                } else {
+                    textLang = (int)save[offsets.main.TextLanguage];
+                    Debug.WriteLine("Language int is " + textLang);
+                }
+            } else { textLang = (int)Memory.ReadBytes(Convert.ToInt32(offsets.main.TextLanguageRTE), 1).First(); }
 
             int voiceLang = 0;
             if (!Main.isRTE)
             {
-                if (Main.isGC) { voiceLang = (int)save[offsets.main.VoiceLanguageGC]; }
-                else { voiceLang = (int)save[offsets.main.VoiceLanguage]; }
+                if (Main.isGC) {
+                    voiceLang = (int)save[offsets.main.VoiceLanguageGC];
+                    Debug.WriteLine("GC voice language int is " + voiceLang);
+                }  else {
+                    voiceLang = (int)save[offsets.main.VoiceLanguage];
+                    Debug.WriteLine("Voice language int is " + voiceLang);
+                }
             }
             else { voiceLang = (int)Memory.ReadBytes(Convert.ToInt32(offsets.main.VoiceLanguageRTE), 1).First(); }
 
@@ -288,7 +322,7 @@ namespace SA2SaveUtility
             checkb_GreenHill.InvokeCheck(() => checkb_GreenHill.Checked(Convert.ToBoolean(greenH)));
             foreach (GroupBox gb in controls[0].Controls.OfType<GroupBox>())
             {
-                Debug.WriteLine("Group Box control: " + gb.Name);
+                //Debug.WriteLine("Group Box control: " + gb.Name);
                 if (gb.Name == "gb_TotalRings")
                 {
                     NumericUpDown nud_TotalRings = gb.Controls.OfType<NumericUpDown>().Where(x => x.Name == "nud_TotalRings").First();
@@ -304,12 +338,10 @@ namespace SA2SaveUtility
                     NumericUpDown nud_PlayHour = gb.Controls.OfType<NumericUpDown>().Where(x => x.Name == "nud_PlayHour").First();
                     NumericUpDown nud_PlayMinute = gb.Controls.OfType<NumericUpDown>().Where(x => x.Name == "nud_PlayMinute").First();
                     NumericUpDown nud_PlaySecond = gb.Controls.OfType<NumericUpDown>().Where(x => x.Name == "nud_PlaySecond").First();
-                    int hours = playTime / 216000;
-                    int minutes = (playTime - (hours * 216000)) / 3600;
-                    int seconds = ((playTime - (hours * 216000)) - ((playTime - (hours * 21600)) - ((playTime - (hours * 21600)) - minutes * 3600))) / 60;
-                    nud_PlayHour.InvokeCheck(() => nud_PlayHour.Value(hours));
-                    nud_PlayMinute.InvokeCheck(() => nud_PlayMinute.Value(minutes));
-                    nud_PlaySecond.InvokeCheck(() => nud_PlaySecond.Value(seconds));
+
+                    nud_PlayHour.InvokeCheck(() => nud_PlayHour.Value((int)playTimeSpan.TotalHours));
+                    nud_PlayMinute.InvokeCheck(() => nud_PlayMinute.Value(playTimeSpan.Minutes));
+                    nud_PlaySecond.InvokeCheck(() => nud_PlaySecond.Value(playTimeSpan.Seconds));
                 }
                 if (gb.Name == "gb_GCFileNo")
                 {
@@ -343,12 +375,9 @@ namespace SA2SaveUtility
                     NumericUpDown nud_EmblemHour = gb.Controls.OfType<NumericUpDown>().Where(x => x.Name == "nud_EmblemHour").First();
                     NumericUpDown nud_EmblemMinute = gb.Controls.OfType<NumericUpDown>().Where(x => x.Name == "nud_EmblemMinute").First();
                     NumericUpDown nud_EmblemSecond = gb.Controls.OfType<NumericUpDown>().Where(x => x.Name == "nud_EmblemSecond").First();
-                    int hours = emblemTime / 216000;
-                    int minutes = (emblemTime - (hours * 216000)) / 3600;
-                    int seconds = ((emblemTime - (hours * 216000)) - ((emblemTime - (hours * 21600)) - ((emblemTime - (hours * 21600)) - minutes * 3600))) / 60;
-                    nud_EmblemHour.InvokeCheck(() => nud_EmblemHour.Value(hours));
-                    nud_EmblemMinute.InvokeCheck(() => nud_EmblemMinute.Value(minutes));
-                    nud_EmblemSecond.InvokeCheck(() => nud_EmblemSecond.Value(seconds));
+                    nud_EmblemHour.InvokeCheck(() => nud_EmblemHour.Value((int)emblemTimeSpan.TotalHours));
+                    nud_EmblemMinute.InvokeCheck(() => nud_EmblemMinute.Value(emblemTimeSpan.Minutes));
+                    nud_EmblemSecond.InvokeCheck(() => nud_EmblemSecond.Value(emblemTimeSpan.Seconds));
                 }
                 if (gb.Name == "gb_ChaoWorldCharacters")
                 {
@@ -495,6 +524,10 @@ namespace SA2SaveUtility
 
                 int M1MM = (int)(currentMission[(int)(offsets.mission.M1T) + 0x00]);
                 int M1SS = (int)(currentMission[(int)(offsets.mission.M1T) + 0x01]);
+                if (M1SS > 59) {
+                    Debug.WriteLine("M1SS is being set too high for mission " + currentMissionTab.Text + ". It is " + M1SS);
+                    M1SS = 59;
+                }
                 int M1MS = (int)(currentMission[(int)(offsets.mission.M1T) + 0x02]);
                 int M2MM = (int)(currentMission[(int)(offsets.mission.M2T) + 0x00]);
                 int M2SS = (int)(currentMission[(int)(offsets.mission.M2T) + 0x01]);
@@ -729,18 +762,21 @@ namespace SA2SaveUtility
                 NumericUpDown nud_3TimeMM = ucCurrentMission.Controls.OfType<NumericUpDown>().Where(x => x.Name == "nud_3TimeMM").First();
                 NumericUpDown nud_3TimeSS = ucCurrentMission.Controls.OfType<NumericUpDown>().Where(x => x.Name == "nud_3TimeSS").First();
                 NumericUpDown nud_3TimeMS = ucCurrentMission.Controls.OfType<NumericUpDown>().Where(x => x.Name == "nud_3TimeMS").First();
+                try {
+                    checkb_Emblem.InvokeCheck(() => checkb_Emblem.Checked = Convert.ToBoolean(E));
 
-                checkb_Emblem.InvokeCheck(() => checkb_Emblem.Checked = Convert.ToBoolean(E));
-
-                nud_1TimeMM.InvokeCheck(() => nud_1TimeMM.Value = M1MM);
-                nud_1TimeSS.InvokeCheck(() => nud_1TimeSS.Value = M1SS);
-                nud_1TimeMS.InvokeCheck(() => nud_1TimeMS.Value = M1MS);
-                nud_2TimeMM.InvokeCheck(() => nud_2TimeMM.Value = M2MM);
-                nud_2TimeSS.InvokeCheck(() => nud_2TimeSS.Value = M2SS);
-                nud_2TimeMS.InvokeCheck(() => nud_2TimeMS.Value = M2MS);
-                nud_3TimeMM.InvokeCheck(() => nud_3TimeMM.Value = M3MM);
-                nud_3TimeSS.InvokeCheck(() => nud_3TimeSS.Value = M3SS);
-                nud_3TimeMS.InvokeCheck(() => nud_3TimeMS.Value = M3MS);
+                    nud_1TimeMM.InvokeCheck(() => nud_1TimeMM.Value = M1MM);
+                    nud_1TimeSS.InvokeCheck(() => nud_1TimeSS.Value = M1SS);
+                    nud_1TimeMS.InvokeCheck(() => nud_1TimeMS.Value = M1MS);
+                    nud_2TimeMM.InvokeCheck(() => nud_2TimeMM.Value = M2MM);
+                    nud_2TimeSS.InvokeCheck(() => nud_2TimeSS.Value = M2SS);
+                    nud_2TimeMS.InvokeCheck(() => nud_2TimeMS.Value = M2MS);
+                    nud_3TimeMM.InvokeCheck(() => nud_3TimeMM.Value = M3MM);
+                    nud_3TimeSS.InvokeCheck(() => nud_3TimeSS.Value = M3SS);
+                    nud_3TimeMS.InvokeCheck(() => nud_3TimeMS.Value = M3MS);
+                } catch (Exception e) {
+                    Debug.WriteLine(e);
+                }
             }
 
             //Chao Emblems
