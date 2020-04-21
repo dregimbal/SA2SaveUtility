@@ -1,7 +1,12 @@
 ﻿using System.Collections.Generic;
 
 namespace SA2SaveUtility {
-    class SavedValues {
+    public class SavedValues {
+
+        public SavedValues() {
+
+        }
+
         public uint TextLanguage = 0x2849;
         public uint VoiceLanguage = 0x284A;
         public uint EmblemCount = 0x284E;

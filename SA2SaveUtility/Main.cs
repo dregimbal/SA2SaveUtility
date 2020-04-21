@@ -41,6 +41,7 @@ namespace SA2SaveUtility {
         public static byte[] gcBytes;
         public static byte[] gcFileBytes;
 
+        public static SavedValues SavedValues = new SavedValues();
 
         static Offsets offsets = new Offsets();
 
@@ -229,6 +230,7 @@ namespace SA2SaveUtility {
                     isPC = true;
                     isGC = false;
                     validSave = true;
+                    ReadSave.FromSaveType = SaveType.PC;
                     IsMain();
                 } else
                 if (loadedSave.Length == 0x10000) {
@@ -280,6 +282,7 @@ namespace SA2SaveUtility {
                     gcBytes = loadedSave.Take(0x40).ToArray();
                     loadedSave = loadedSave.Skip(0x40).ToArray();
                     validSave = true;
+                    ReadSave.FromSaveType = SaveType.GAMECUBE;
                     IsMain();
                 } else
                 if (loadedSave.Length == 0x10040) {
@@ -291,6 +294,8 @@ namespace SA2SaveUtility {
                     gcBytes = loadedSave.Take(0x40).ToArray();
                     loadedSave = loadedSave.Skip(0x40).ToArray();
                     validSave = true;
+                    ReadSave.FromSaveType = SaveType.GAMECUBE;
+                    ReadSave.IsChaoSave = true;
                     IsChao();
                 } else {
                     DialogResult result = MessageBox.Show("Is the save you're loading a PC Save?", "PC Save?", MessageBoxButtons.YesNo);
@@ -301,6 +306,7 @@ namespace SA2SaveUtility {
                         isPC = true;
                         isGC = false;
                         validSave = true;
+                        ReadSave.FromSaveType = SaveType.PC;
                         IsMain();
                     }
                 }

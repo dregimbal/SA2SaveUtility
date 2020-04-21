@@ -73,6 +73,7 @@
     <Compile Include="PopulateChaoMsgBox.Designer.cs">
       <DependentUpon>PopulateChaoMsgBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="SavedValues.cs" />
     <Compile Include="Updater.cs" />
     <Compile Include="ChaoSave.cs" />
     <Compile Include="Checksum.cs" />
