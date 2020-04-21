@@ -1,4 +1,7 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace SA2SaveUtility
 {
@@ -14,7 +17,26 @@ namespace SA2SaveUtility
             }
             if (c is NumericUpDown)
             {
-                if (((NumericUpDown)c).Value != value && !denyChange) { ((NumericUpDown)c).Value = value; }
+                decimal minimum = ((NumericUpDown)c).Minimum;
+                decimal maximum = ((NumericUpDown)c).Maximum;
+                if (((NumericUpDown)c).Value != value && !denyChange) {
+                    if (minimum <= value && maximum >= value)
+                    {
+                        ((NumericUpDown)c).Value = value;
+                    }
+                    else {
+                        int number = BitConverter.ToInt32(BitConverter.GetBytes(value).Reverse().ToArray(), 0);
+                        Debug.WriteLine(((NumericUpDown)c).Name + " cannot be set to " + value + " it should be between " + ((NumericUpDown)c).Minimum + " and " + ((NumericUpDown)c).Maximum);
+                        if (minimum <= number && maximum >= number)
+                        {
+                            Debug.WriteLine("This might be an \"endian\" issue, setting the value to " + number);
+                            ((NumericUpDown)c).Value = number;
+                        }
+                        else {
+                            Debug.WriteLine("Cannot set the value to " + number);
+                        }
+                    }
+                }
             }
         }
 
