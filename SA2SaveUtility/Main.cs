@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -234,6 +235,8 @@ namespace SA2SaveUtility
                 ChaoSave.activeChao = new Dictionary<uint, TabPage>();
                 MainSave.activeMain = new Dictionary<int, TabPage>();
 
+                Debug.WriteLine("File has a length of " + loadedSave.Length);
+
                 if (loadedSave.Length == 0xC820)
                 {
                     DialogResult result = MessageBox.Show("Is the save you're loading an SA PC Chao Save?", "PC or 360/PS3 SA Chao Save?", MessageBoxButtons.YesNo);
@@ -257,7 +260,7 @@ namespace SA2SaveUtility
                     IsChao();
                 }
 
-                if (loadedSave.Length == 0x6000)
+                if (loadedSave.Length == 0x6000 || loadedSave.Length == 0x5ffc)
                 {
                     ActiveForm.Text = "Sonic Adventure 2 - Save Utility [Editing PC Main Save]";
                     isRTE = false;

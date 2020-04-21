@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -287,6 +288,7 @@ namespace SA2SaveUtility
             checkb_GreenHill.InvokeCheck(() => checkb_GreenHill.Checked(Convert.ToBoolean(greenH)));
             foreach (GroupBox gb in controls[0].Controls.OfType<GroupBox>())
             {
+                Debug.WriteLine("Group Box control: " + gb.Name);
                 if (gb.Name == "gb_TotalRings")
                 {
                     NumericUpDown nud_TotalRings = gb.Controls.OfType<NumericUpDown>().Where(x => x.Name == "nud_TotalRings").First();
