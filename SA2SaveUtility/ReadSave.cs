@@ -30,7 +30,7 @@ namespace SA2SaveUtility {
 
         private void CorrectCustomOffsets() {
             if (Main.ReadSave.FromSaveType == SaveType.GAMECUBE) {
-                SavedValues.GCFileNumber = ReadInt16(0x12);
+                SavedValues.GCFileNumber = Int32.Parse(ReadString(2, 0x12));
                 DebugWrite("GameCube Save " + SavedValues.GCFileNumber);
 
                 saveFileBytes = saveFileBytes.Skip(0x40).ToArray();
@@ -164,6 +164,27 @@ namespace SA2SaveUtility {
             SavedValues.RougeTS = saveFileBytes[StaticOffsets.Main.RougeTreasure];
             SavedValues.RougeIB = saveFileBytes[StaticOffsets.Main.RougeBoots];
             SavedValues.RougeMM = saveFileBytes[StaticOffsets.Main.RougeMM];
+            SavedValues.KarateB = saveFileBytes[StaticOffsets.Main.ChaoKarateBeginner];
+            SavedValues.KarateS = saveFileBytes[StaticOffsets.Main.ChaoKarateStandard];
+            SavedValues.KarateE = saveFileBytes[StaticOffsets.Main.ChaoKarateExpert];
+            SavedValues.KarateSu = saveFileBytes[StaticOffsets.Main.ChaoKarateSuper];
+            SavedValues.RaceB = saveFileBytes[StaticOffsets.Main.ChaoRaceBeginner];
+            SavedValues.RaceJ = saveFileBytes[StaticOffsets.Main.ChaoRaceJewel];
+            SavedValues.RaceC = saveFileBytes[StaticOffsets.Main.ChaoRaceChallenge];
+            SavedValues.RaceH = saveFileBytes[StaticOffsets.Main.ChaoRaceHero];
+            SavedValues.RaceD = saveFileBytes[StaticOffsets.Main.ChaoRaceDark];
+            SavedValues.ThemeA = saveFileBytes[StaticOffsets.Main.ThemeAmy];
+            SavedValues.ThemeM = saveFileBytes[StaticOffsets.Main.ThemeMaria];
+            SavedValues.ThemeS = saveFileBytes[StaticOffsets.Main.ThemeSecretary];
+            SavedValues.ThemeO = saveFileBytes[StaticOffsets.Main.ThemeOmochao];
+            SavedValues.GreenH = saveFileBytes[StaticOffsets.Main.GreenHill];
+            SavedValues.KartS = saveFileBytes[StaticOffsets.Main.KartSonic];
+            SavedValues.KartSh = saveFileBytes[StaticOffsets.Main.KartShadow];
+            SavedValues.KartT = saveFileBytes[StaticOffsets.Main.KartTails];
+            SavedValues.KartE = saveFileBytes[StaticOffsets.Main.KartEggman];
+            SavedValues.KartK = saveFileBytes[StaticOffsets.Main.KartKnuckles];
+            SavedValues.KartR = saveFileBytes[StaticOffsets.Main.KartRouge];
+
         }
 
         /// <summary>
@@ -174,7 +195,7 @@ namespace SA2SaveUtility {
         /// <returns>The 2 byte integer</returns>
         private Int16 ReadInt16(int offset = 0, bool bigEndian = false) {
             byte[] bytes = saveFileBytes.Skip(offset).Take(2).ToArray();
-            DebugWrite("Reading the following bytes: " + bytes.ToString());
+            DebugWrite("Reading the following bytes: " + BitConverter.ToString(bytes));
             if (BitConverter.IsLittleEndian != bigEndian) {
                 return BitConverter.ToInt16(bytes.Reverse().ToArray(), 0);
             }
@@ -190,7 +211,7 @@ namespace SA2SaveUtility {
         /// <returns>The 4 byte integer</returns>
         private Int32 ReadInt32(int offset = 0, bool bigEndian = false) {
             byte[] bytes = saveFileBytes.Skip(offset).Take(4).ToArray();
-            DebugWrite("Reading the following bytes: " + bytes.ToString());
+            DebugWrite("Reading the following bytes: " + BitConverter.ToString(bytes));
             if (BitConverter.IsLittleEndian != bigEndian) {
                 return BitConverter.ToInt32(bytes.Reverse().ToArray(), 0);
             }
@@ -205,7 +226,7 @@ namespace SA2SaveUtility {
         /// <returns>The 8 byte integer</returns>
         private Int64 ReadInt64(int offset = 0, bool bigEndian = false) {
             byte[] bytes = saveFileBytes.Skip(offset).Take(8).ToArray();
-            DebugWrite("Reading the following bytes: " + bytes.ToString());
+            DebugWrite("Reading the following bytes: " + BitConverter.ToString(bytes));
             if (BitConverter.IsLittleEndian != bigEndian) {
                 return BitConverter.ToInt64(bytes.Reverse().ToArray(), 0);
             }
@@ -219,7 +240,7 @@ namespace SA2SaveUtility {
         /// <param name="offset">The number of bytes to skip before reading</param>
         /// <returns>The string</returns>
         private string ReadString(int length, int offset = 0) {
-            return BitConverter.ToString(saveFileBytes, offset, length);
+            return Encoding.UTF8.GetString(saveFileBytes.Skip(offset).Take(length).ToArray());
         }
 
         /// <summary>

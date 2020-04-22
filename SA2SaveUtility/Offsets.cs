@@ -26,7 +26,7 @@ namespace SA2SaveUtility {
     }
 
     class Save {
-        public uint TextLanguageGC = 0x2849;
+        public uint TextLanguageGC = 0x2848;
         public uint TextLanguage = 0x2849;
         public uint TextLanguageRTE = 0x174AFD1;
         public uint EmblemCount = 0x284E;
@@ -37,7 +37,7 @@ namespace SA2SaveUtility {
         public uint PlayTime = 0x286C;
         public uint Rings = 0x2870;
         public uint RingsRTE = 0x174B05C;
-        public uint VoiceLanguageGC = 0x284A;
+        public uint VoiceLanguageGC = 0x2849;
         public uint VoiceLanguage = 0x284A;
         public uint VoiceLanguageRTE = 0x174AFD2;
         public uint GreenHill = 0x4034;

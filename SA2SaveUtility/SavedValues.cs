@@ -10,7 +10,7 @@ namespace SA2SaveUtility {
 
         }
 
-        public short GCFileNumber = 0;
+        public int GCFileNumber = 0;
         public string FileTitle = "Sonic Adventure 2 Save";
         public TimeSpan PlayTimeSpan = TimeSpan.FromSeconds(0);
         public TimeSpan EmblemResultsTimeSpan = TimeSpan.FromSeconds(0);
@@ -77,8 +77,8 @@ namespace SA2SaveUtility {
     
     public static class StaticOffsets {
         public static class GameCube {
-            public static int TextLanguage = 0x2849;
-            public static int VoiceLanguage = 0x284A;
+            public static int TextLanguage = 0x2848;
+            public static int VoiceLanguage = 0x2849;
         }
         public static class Main {
             public static int TextLanguage = 0x2849;
