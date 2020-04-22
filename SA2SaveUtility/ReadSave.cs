@@ -27,6 +27,7 @@ namespace SA2SaveUtility {
             ReadDeviceSpecificData();
             ReadDeviceAgnosticData();
             ReadMissionData();
+            ReadKartData();
 
         }
 
@@ -261,11 +262,67 @@ namespace SA2SaveUtility {
 
             TimeSpan highScoreTime = new TimeSpan(0, 0, minutes, seconds, milliseconds);
 
-
             score.Time = highScoreTime;
 
             return score;
-        
+
+        }
+
+        private void ReadKartData() {
+            // Loop through each kart race type
+            foreach (KeyValuePair<string, int> keyValuePair in StaticOffsets.Karts.StartingOffsets) {
+                KartRace race = new KartRace(keyValuePair.Key);
+                int raceOffset = keyValuePair.Value;
+                for (int i = 0; i < 3; i++) {
+                    KartRaceHighScore score = new KartRaceHighScore();
+
+                    // 4 bytes per high score entry
+                    int timeOffset = raceOffset + 4 * i;
+
+                    // First three bytes are the time
+                    int minutes = saveFileBytes[timeOffset + 0x00];
+                    int seconds = saveFileBytes[timeOffset + 0x01];
+                    int milliseconds = saveFileBytes[timeOffset + 0x02] * 10;
+
+                    TimeSpan raceTime = new TimeSpan(0, 0, minutes, seconds, milliseconds);
+                    score.Time = raceTime;
+
+                    // Fourth byte is the character who raced
+                    score.Character = saveFileBytes[timeOffset + 0x03];
+
+                    race.Scores.Add(score);
+                }
+                race.Emblem = saveFileBytes[raceOffset + 0x0C];
+                SavedValues.KartRaces.Add(race);
+            }
+        }
+
+        private void ReadBossData() {
+            // Loop through each boss type
+            foreach (KeyValuePair<string, int> keyValuePair in StaticOffsets.Boss.StartingOffsets) {
+                KartRace race = new KartRace(keyValuePair.Key);
+                int raceOffset = keyValuePair.Value;
+                for (int i = 0; i < 3; i++) {
+                    KartRaceHighScore score = new KartRaceHighScore();
+
+                    // 4 bytes per high score entry
+                    int timeOffset = raceOffset + 4 * i;
+
+                    // Read race time
+                    int minutes = saveFileBytes[timeOffset + 0x00];
+                    int seconds = saveFileBytes[timeOffset + 0x01];
+                    int milliseconds = saveFileBytes[timeOffset + 0x02] * 10;
+
+                    TimeSpan raceTime = new TimeSpan(0, 0, minutes, seconds, milliseconds);
+                    score.Time = raceTime;
+
+                    // Read character
+                    score.Character = saveFileBytes[timeOffset + 0x03];
+
+                    race.Scores.Add(score);
+                }
+                SavedValues.KartRaces.Add(race);
+            }
         }
 
         /// <summary>

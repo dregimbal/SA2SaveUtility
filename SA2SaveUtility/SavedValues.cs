@@ -101,6 +101,7 @@ namespace SA2SaveUtility {
         public int ARankRouge = 0;
 
         public List<LevelValues> LevelList = new List<LevelValues>();
+        public List<KartRace> KartRaces = new List<KartRace>();
     }
 
     public class LevelValues {
@@ -131,6 +132,20 @@ namespace SA2SaveUtility {
         public MissionHighScore(int num) {
             Number = num;
         }
+    }
+
+    public class KartRace {
+        public string RaceName = "Kart Race - Beginner";
+        public int Emblem = 0;
+        public List<KartRaceHighScore> Scores = new List<KartRaceHighScore>();
+        public KartRace(string name) {
+            RaceName = name;
+        }
+    }
+
+    public class KartRaceHighScore {
+        public int Character = 0;
+        public TimeSpan Time = TimeSpan.FromSeconds(0);
     }
 
     public static class StaticOffsets {
@@ -357,19 +372,29 @@ namespace SA2SaveUtility {
 
             }
         }
+        public static class Karts {
+
+            public static Dictionary<string, int> StartingOffsets = new Dictionary<string, int>() {
+                { "Kart Racing - Beginner", 0x57F0 },
+                { "Kart Racing - Standard", 0x57FD },
+                { "Kart Racing - Expert", 0x580A }
+            };
+
+            public static class InternalOffsets {
+                public static int FirstT = 0x00;
+                public static int FirstC = 0x03;
+                public static int SecondT = 0x04;
+                public static int SecondC = 0x07;
+                public static int ThirdT = 0x08;
+                public static int ThirdC = 0x0B;
+                public static int Emblem = 0x0C;
+
+            }
+        }
 
     }
 
-    public class KartValues {
-        public uint FirstT = 0x00;
-        public uint FirstC = 0x03;
-        public uint SecondT = 0x04;
-        public uint SecondC = 0x07;
-        public uint ThirdT = 0x08;
-        public uint ThirdC = 0x0B;
-        public uint Emblem = 0x0C;
 
-    }
 
     class BossValues {
         public uint Emblem = 0x00;
