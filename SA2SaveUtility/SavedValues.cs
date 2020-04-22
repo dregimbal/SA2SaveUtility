@@ -145,6 +145,7 @@ namespace SA2SaveUtility {
     }
 
     public class KartRaceHighScore {
+        public int Number = 0;
         public int Character = 0;
         public TimeSpan Time = TimeSpan.FromSeconds(0);
     }
@@ -382,6 +383,7 @@ namespace SA2SaveUtility {
 
             }
         }
+        
         public static class Karts {
 
             public static Dictionary<string, int> StartingOffsets = new Dictionary<string, int>() {

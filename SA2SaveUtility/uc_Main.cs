@@ -339,7 +339,6 @@ namespace SA2SaveUtility {
             time += (int)(nud_EmblemSecond.Value * 60);
 
             byte[] timeBytes = BitConverter.GetBytes(time);
-            Array.Reverse(timeBytes);
             Main.WriteBytes((int)offsets.main.EmblemResultsTime, timeBytes, mainIndex, 4);
         }
 
@@ -350,7 +349,6 @@ namespace SA2SaveUtility {
             time += (int)(nud_EmblemSecond.Value * 60);
 
             byte[] timeBytes = BitConverter.GetBytes(time);
-            Array.Reverse(timeBytes);
             Main.WriteBytes((int)offsets.main.EmblemResultsTime, timeBytes, mainIndex, 4);
         }
 
@@ -360,7 +358,6 @@ namespace SA2SaveUtility {
             time += (int)(nud_EmblemMinute.Value * 3600);
             time += (int)(nud_EmblemSecond.Value * 60);
             byte[] timeBytes = BitConverter.GetBytes(time);
-            Array.Reverse(timeBytes);
             Main.WriteBytes((int)offsets.main.EmblemResultsTime, timeBytes, mainIndex, 4);
         }
 

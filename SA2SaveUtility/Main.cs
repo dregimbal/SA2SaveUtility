@@ -42,6 +42,7 @@ namespace SA2SaveUtility {
         public static byte[] gcFileBytes;
 
         public static ReadSave ReadSave = new ReadSave();
+        public static WriteSave WriteSave = new WriteSave();
 
         static Offsets offsets = new Offsets();
 
@@ -525,7 +526,7 @@ namespace SA2SaveUtility {
                         uc_Main uc = (uc_Main)tc_Main.Controls[tc_Main.SelectedIndex].Controls[0];
                         List<byte> toSave = new List<byte>();
                         if (isPC) { toSave = new List<byte>(loadedSave); } else {
-                            if (!isPS3) { toSave = new List<byte>(loadedSave.Skip((0x6004 * (int)(uc.mainIndex))).Take(0x6000).ToArray()); } else { toSave = new List<byte>(loadedSave.Skip((0x6008 * (int)(uc.mainIndex)) + 8).Take(0x6000).ToArray()); }
+                            if (!isPS3) { toSave = new List<byte>(loadedSave.Skip((0x6004 * (int)(uc.mainIndex) + 4)).Take(0x6000).ToArray()); } else { toSave = new List<byte>(loadedSave.Skip((0x6008 * (int)(uc.mainIndex)) + 8).Take(0x6000).ToArray()); }
                             toSave = MainSave.ByteSwapMain(toSave.ToArray()).ToList();
                         }
                         toSave = new List<byte>(Checksum.WriteMainChecksum(toSave.ToArray(), true, false, false));
@@ -577,6 +578,8 @@ namespace SA2SaveUtility {
                     MessageBox.Show("You can't save an SA2 Main Save as DX.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+
+            WriteSave.WriteSaveFile(ReadSave.GetSavedValues());
         }
 
         private void Tsmi_saveAsGC_Click(object sender, EventArgs e) {
@@ -1052,9 +1055,16 @@ namespace SA2SaveUtility {
                         0x80, 0x06, 0x80, 0x0B, 0x80, 0x00, 0xA1, 0x0B, 0x84, 0x27, 0x84, 0x48, 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80, 0x00
                     };
                     List<byte> toSave = new List<byte>();
-                    if (isPC) { toSave = new List<byte>(loadedSave); toSave = MainSave.ByteSwapMain(toSave.ToArray()).ToList(); }
-                    if (isGC) { toSave = new List<byte>(loadedSave); }
-                    if (!isPC && !isGC) { toSave = new List<byte>(loadedSave.Skip((0x6004 * (int)(uc.mainIndex)) + 4).Take(0x6000).ToArray()); }
+                    if (isPC) { 
+                        toSave = new List<byte>(loadedSave);
+                        toSave = MainSave.ByteSwapMain(toSave.ToArray()).ToList(); 
+                    }
+                    if (isGC) {
+                        toSave = new List<byte>(loadedSave);
+                    }
+                    if (!isPC && !isGC) { 
+                        toSave = new List<byte>(loadedSave.Skip((0x6004 * (int)(uc.mainIndex)) + 4).Take(0x6000).ToArray());
+                    }
                     toSave = new List<byte>(Checksum.WriteMainChecksum(toSave.ToArray(), true, true, false));
                     toSave.InsertRange(0, header);
                     toSave.RemoveRange(0x80, 0x2800);

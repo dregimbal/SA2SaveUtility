@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="CustomBehaviours.cs" />
     <Compile Include="InvokeChecker.cs" />
+    <Compile Include="WriteSave.cs" />
     <Compile Include="ReadSave.cs" />
     <Compile Include="PopulateChaoMsgBox.cs">
       <SubType>Form</SubType>

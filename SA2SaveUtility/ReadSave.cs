@@ -13,9 +13,10 @@ namespace SA2SaveUtility {
         public SaveType ToSaveType = SaveType.PC;
         public bool IsChaoSave = false;
         private byte[] saveFileBytes = new byte[0];
-        private SavedValues SavedValues = new SavedValues();
+        private SavedValues SavedValues;
 
         public void InjestSaveFile(byte[] saveFile) {
+            SavedValues = new SavedValues();
             saveFileBytes = saveFile;
 
             if (saveFileBytes.Length <= 0) {
@@ -29,8 +30,10 @@ namespace SA2SaveUtility {
             ReadMissionData();
             ReadKartData();
             ReadBossData();
+        }
 
-
+        public SavedValues GetSavedValues() {
+            return SavedValues;
         }
 
         /// <summary>
@@ -218,9 +221,10 @@ namespace SA2SaveUtility {
                 LevelValues level = new LevelValues(keyValuePair.Key);
                 int levelOffset = keyValuePair.Value;
 
+                DebugWrite("Reading data for level " + level.LevelName + " at offset " + levelOffset);
                 // Loop through each of the 5 missions
                 for (int m = 0; m < 5; m++) {
-                    MissionValues mission = new MissionValues(m + 1);
+                    MissionValues mission = new MissionValues(m);
 
                     // Read mission grade
                     mission.Grade = saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Grades[m]];
@@ -252,10 +256,10 @@ namespace SA2SaveUtility {
             startOffset += highScore * 0x0C;
 
             // Read rings
-            score.Rings = saveFileBytes[startOffset + 0x00];
+            score.Rings = ReadInt16(startOffset + 0x00);
 
             // Read score
-            score.Score = saveFileBytes[startOffset + 0x04];
+            score.Score = ReadInt16(startOffset + 0x04);
 
             // Read mission time
             int minutes = saveFileBytes[startOffset + 0x08];
@@ -277,6 +281,7 @@ namespace SA2SaveUtility {
                 int raceOffset = keyValuePair.Value;
                 for (int i = 0; i < 3; i++) {
                     KartRaceHighScore score = new KartRaceHighScore();
+                    score.Number = i;
 
                     // 4 bytes per high score entry
                     int timeOffset = raceOffset + 4 * i;
@@ -310,7 +315,7 @@ namespace SA2SaveUtility {
                     // 4 bytes per high score entry
                     int timeOffset = attackOffset + 0x18 + 0x0C * i;
 
-                    // Read race time
+                    // Read boss time
                     int minutes = saveFileBytes[timeOffset + 0x00];
                     int seconds = saveFileBytes[timeOffset + 0x01];
                     int milliseconds = saveFileBytes[timeOffset + 0x02] * 10;
@@ -330,11 +335,13 @@ namespace SA2SaveUtility {
         /// <param name="bigEndian">When true, the value will be read as Big Endian</param>
         /// <returns>The 2 byte integer</returns>
         private Int16 ReadInt16(int offset = 0, bool bigEndian = false) {
-            byte[] bytes = saveFileBytes.Skip(offset).Take(2).ToArray();
-            DebugWrite("Reading the following bytes: " + BitConverter.ToString(bytes));
-            if (BitConverter.IsLittleEndian != bigEndian) {
-                return BitConverter.ToInt16(bytes.Reverse().ToArray(), 0);
+            byte[] bytes;
+            if (BitConverter.IsLittleEndian == bigEndian) {
+                bytes = saveFileBytes.Skip(offset).Take(2).Reverse().ToArray();
+            } else {
+                bytes = saveFileBytes.Skip(offset).Take(2).ToArray();
             }
+            DebugWrite("Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset);
             return BitConverter.ToInt16(bytes, 0);
         }
 
@@ -347,7 +354,7 @@ namespace SA2SaveUtility {
         /// <returns>The 4 byte integer</returns>
         private Int32 ReadInt32(int offset = 0, bool bigEndian = false) {
             byte[] bytes;
-            if (BitConverter.IsLittleEndian != bigEndian) {
+            if (BitConverter.IsLittleEndian == bigEndian) {
                 bytes = saveFileBytes.Skip(offset).Take(4).Reverse().ToArray();
             } else {
                 bytes = saveFileBytes.Skip(offset).Take(4).ToArray();
@@ -363,11 +370,13 @@ namespace SA2SaveUtility {
         /// <param name="bigEndian">When true, the value will be read as Big Endian</param>
         /// <returns>The 8 byte integer</returns>
         private Int64 ReadInt64(int offset = 0, bool bigEndian = false) {
-            byte[] bytes = saveFileBytes.Skip(offset).Take(8).ToArray();
-            DebugWrite("Reading the following bytes: " + BitConverter.ToString(bytes));
-            if (BitConverter.IsLittleEndian != bigEndian) {
-                return BitConverter.ToInt64(bytes.Reverse().ToArray(), 0);
+            byte[] bytes;
+            if (BitConverter.IsLittleEndian == bigEndian) {
+                bytes = saveFileBytes.Skip(offset).Take(8).Reverse().ToArray();
+            } else {
+                bytes = saveFileBytes.Skip(offset).Take(8).ToArray();
             }
+            DebugWrite("Reading the following bytes: " + BitConverter.ToString(bytes));
             return BitConverter.ToInt64(bytes, 0);
         }
 
