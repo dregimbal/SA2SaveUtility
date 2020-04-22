@@ -28,6 +28,8 @@ namespace SA2SaveUtility {
             ReadDeviceAgnosticData();
             ReadMissionData();
             ReadKartData();
+            ReadBossData();
+
 
         }
 
@@ -300,28 +302,24 @@ namespace SA2SaveUtility {
         private void ReadBossData() {
             // Loop through each boss type
             foreach (KeyValuePair<string, int> keyValuePair in StaticOffsets.Boss.StartingOffsets) {
-                KartRace race = new KartRace(keyValuePair.Key);
-                int raceOffset = keyValuePair.Value;
+                BossAttack boss = new BossAttack(keyValuePair.Key);
+                int attackOffset = keyValuePair.Value;
+                boss.Emblem = saveFileBytes[attackOffset];
                 for (int i = 0; i < 3; i++) {
-                    KartRaceHighScore score = new KartRaceHighScore();
 
                     // 4 bytes per high score entry
-                    int timeOffset = raceOffset + 4 * i;
+                    int timeOffset = attackOffset + 0x18 + 0x0C * i;
 
                     // Read race time
                     int minutes = saveFileBytes[timeOffset + 0x00];
                     int seconds = saveFileBytes[timeOffset + 0x01];
                     int milliseconds = saveFileBytes[timeOffset + 0x02] * 10;
 
-                    TimeSpan raceTime = new TimeSpan(0, 0, minutes, seconds, milliseconds);
-                    score.Time = raceTime;
+                    TimeSpan attackTime = new TimeSpan(0, 0, minutes, seconds, milliseconds);
 
-                    // Read character
-                    score.Character = saveFileBytes[timeOffset + 0x03];
-
-                    race.Scores.Add(score);
+                    boss.Times.Add(attackTime);
                 }
-                SavedValues.KartRaces.Add(race);
+                SavedValues.BossAttacks.Add(boss);
             }
         }
 

@@ -102,6 +102,7 @@ namespace SA2SaveUtility {
 
         public List<LevelValues> LevelList = new List<LevelValues>();
         public List<KartRace> KartRaces = new List<KartRace>();
+        public List<BossAttack> BossAttacks = new List<BossAttack>();
     }
 
     public class LevelValues {
@@ -146,6 +147,15 @@ namespace SA2SaveUtility {
     public class KartRaceHighScore {
         public int Character = 0;
         public TimeSpan Time = TimeSpan.FromSeconds(0);
+    }
+
+    public class BossAttack {
+        public string BossName = "Boss Attack - Beginner";
+        public int Emblem = 0;
+        public List<TimeSpan> Times = new List<TimeSpan> ();
+        public BossAttack(string name) {
+            BossName = name;
+        }
     }
 
     public static class StaticOffsets {
@@ -392,16 +402,27 @@ namespace SA2SaveUtility {
             }
         }
 
+        public static class Boss {
+            public static Dictionary<string,int> StartingOffsets = new Dictionary<string,int>() {
+                { "Boss Attack - Hero", 0x5818},
+                { "Boss Attack - Dark",0x58DC},
+                { "Boss Attack - All", 0x59A0}, 
+            };
+
+            public static class InternalOffsets {
+                public static int Emblem = 0x00;
+                public static int FirstT = 0x18;
+                public static int SecondT = 0x24;
+                public static int ThirdT = 0x30;
+            }
+
+        }
+
     }
 
 
 
-    class BossValues {
-        public uint Emblem = 0x00;
-        public uint FirstT = 0x18;
-        public uint SecondT = 0x24;
-        public uint ThirdT = 0x30;
-    }
+    
 
 
 }
