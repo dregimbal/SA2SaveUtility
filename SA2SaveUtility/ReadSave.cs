@@ -255,11 +255,12 @@ namespace SA2SaveUtility {
             score.Score = saveFileBytes[startOffset + 0x04];
 
             // Read mission time
-            TimeSpan highScoreTime = TimeSpan.Zero;
-            highScoreTime.Add(TimeSpan.FromMinutes(saveFileBytes[startOffset + 0x08]));
-            highScoreTime.Add(TimeSpan.FromSeconds(saveFileBytes[startOffset + 0x09]));
-            // The fractions of a second are stored as 1/100 of one second
-            highScoreTime.Add(TimeSpan.FromSeconds(saveFileBytes[startOffset + 0x0A] / 100));
+            int minutes = saveFileBytes[startOffset + 0x08];
+            int seconds = saveFileBytes[startOffset + 0x09];
+            int milliseconds = saveFileBytes[startOffset + 0x0A] * 10;
+
+            TimeSpan highScoreTime = new TimeSpan(0, 0, minutes, seconds, milliseconds);
+
 
             score.Time = highScoreTime;
 
@@ -290,11 +291,13 @@ namespace SA2SaveUtility {
         /// <param name="bigEndian">When true, the value will be read as Big Endian</param>
         /// <returns>The 4 byte integer</returns>
         private Int32 ReadInt32(int offset = 0, bool bigEndian = false) {
-            byte[] bytes = saveFileBytes.Skip(offset).Take(4).ToArray();
-            DebugWrite("Reading the following bytes: " + BitConverter.ToString(bytes));
+            byte[] bytes;
             if (BitConverter.IsLittleEndian != bigEndian) {
-                return BitConverter.ToInt32(bytes.Reverse().ToArray(), 0);
+                bytes = saveFileBytes.Skip(offset).Take(4).Reverse().ToArray();
+            } else {
+                bytes = saveFileBytes.Skip(offset).Take(4).ToArray();
             }
+            DebugWrite("Reading the following bytes: " + BitConverter.ToString(bytes));
             return BitConverter.ToInt32(bytes, 0);
         }
 
@@ -338,6 +341,7 @@ namespace SA2SaveUtility {
                 frames = ReadInt32(offset, true);
                 time = TimeSpan.FromSeconds(frames / 60);
             }
+            DebugWrite("Calculating time from " + frames + " frames");
             DebugWrite("Time: " + (int)time.TotalHours + ":" + time.Minutes + ":" + time.Seconds);
             return time;
         }
