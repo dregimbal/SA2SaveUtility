@@ -26,8 +26,12 @@ namespace SA2SaveUtility {
 
             ReadDeviceSpecificData();
             ReadDeviceAgnosticData();
+            ReadMissionData();
         }
 
+        /// <summary>
+        /// Some save files start their data regions in different areas
+        /// </summary>
         private void CorrectCustomOffsets() {
             if (Main.ReadSave.FromSaveType == SaveType.GAMECUBE) {
                 SavedValues.GCFileNumber = Int32.Parse(ReadString(2, 0x12));
@@ -37,6 +41,9 @@ namespace SA2SaveUtility {
             }
         }
 
+        /// <summary>
+        /// Check the length of the save file to deduce the type
+        /// </summary>
         private void VerifySaveFileType() {
             DebugWrite("Save file is " + saveFileBytes.Length + " (0x" + saveFileBytes.Length.ToString("X4") + ") bytes long");
 
@@ -71,6 +78,9 @@ namespace SA2SaveUtility {
             }
         }
 
+        /// <summary>
+        /// Read data from the save file that is in a different spot depending on the save file type
+        /// </summary>
         private void ReadDeviceSpecificData() {
             if (Main.ReadSave.FromSaveType == SaveType.PC) {
                 SavedValues.Lives = ReadInt16(StaticOffsets.Main.Lives, true);
@@ -119,6 +129,9 @@ namespace SA2SaveUtility {
 
         }
 
+        /// <summary>
+        /// Read data from the save file that is the same across systems
+        /// </summary>
         private void ReadDeviceAgnosticData() {
             SavedValues.FileTitle = ReadString(0x19, 0x27);
             DebugWrite("File Title: " + SavedValues.GCFileNumber);
@@ -184,7 +197,74 @@ namespace SA2SaveUtility {
             SavedValues.KartE = saveFileBytes[StaticOffsets.Main.KartEggman];
             SavedValues.KartK = saveFileBytes[StaticOffsets.Main.KartKnuckles];
             SavedValues.KartR = saveFileBytes[StaticOffsets.Main.KartRouge];
+        }
 
+        /// <summary>
+        /// Read mission data from the savefile
+        /// </summary>
+        private void ReadMissionData() {
+            // Loop through each level
+            foreach (KeyValuePair<string, int> keyValuePair in StaticOffsets.Missions.StartingOffsets) {
+                LevelValues level = new LevelValues(keyValuePair.Key);
+                int levelOffset = keyValuePair.Value;
+
+                // Loop through each mission
+                for (int m = 0; m < 5; m++) {
+                    MissionValues mission = new MissionValues(m + 1);
+
+                    // Read mission grade
+                    mission.Grade = saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Grades[m]];
+
+                    // Read number of times played
+                    mission.Plays = saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Plays[m]];
+
+                    // Loop through each of the three high scores
+                    for (int h = 0; h < 3; h++) {
+                        MissionHighScore highScore = new MissionHighScore(h);
+                        // Read mission time
+                        TimeSpan missionTime = TimeSpan.Zero;
+                        missionTime.Add(TimeSpan.FromMinutes(saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Time[m]]));
+                        missionTime.Add(TimeSpan.FromSeconds(saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Time[m] + 0x01]));
+                        // The fractions of a second are stored as 1/100 of one second
+                        missionTime.Add(TimeSpan.FromSeconds(saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Time[m] + 0x02] / 100));
+
+                        mission.Time = missionTime;
+
+                        // Read rings (Missions 1, 4, and 5)
+                        mission.Rings = saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Rings[m]];
+
+                        // Read score (Missions 1, 4, and 5)
+                        mission.Score = saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Score[m]];
+                    }
+
+                }
+                SavedValues.LevelList.Add(level);
+            }
+        }
+
+        private MissionHighScore ReadHighScore(int levelOffset, int highScore) {
+            MissionHighScore score = new MissionHighScore(highScore);
+            int scoreOffset = levelOffset;
+            scoreOffset += 0x10;
+            scoreOffset += highScore*12;
+
+            // Read rings (Missions 1, 4, and 5)
+            score.Rings = saveFileBytes[scoreOffset + 0x00];
+
+            // Read score (Missions 1, 4, and 5)
+            score.Score = saveFileBytes[scoreOffset + 0x04];
+
+            // Read mission time
+            TimeSpan missionTime = TimeSpan.Zero;
+            missionTime.Add(TimeSpan.FromMinutes(saveFileBytes[scoreOffset + 0x08]));
+            missionTime.Add(TimeSpan.FromSeconds(saveFileBytes[scoreOffset + 0x09]));
+            // The fractions of a second are stored as 1/100 of one second
+            missionTime.Add(TimeSpan.FromSeconds(saveFileBytes[scoreOffset + 0x0A] / 100));
+
+            score.Time = missionTime;
+
+            return score;
+        
         }
 
         /// <summary>
@@ -253,7 +333,7 @@ namespace SA2SaveUtility {
             // Time is stored in frames, 1/60 of a second
             int frames = ReadInt32(offset, false);
             TimeSpan time = TimeSpan.FromSeconds(frames / 60);
-            if (time.CompareTo(TimeSpan.FromSeconds(0)) < 0) {
+            if (time.CompareTo(TimeSpan.Zero) < 0) {
                 DebugWrite("Time was negative: " + (int)time.TotalHours + ":" + time.Minutes + ":" + time.Seconds);
                 frames = ReadInt32(offset, true);
                 time = TimeSpan.FromSeconds(frames / 60);

@@ -52,7 +52,7 @@ namespace SA2SaveUtility {
         public int RougePN = 0;
         public int RougeTS = 0;
         public int RougeIB = 0;
-        public int RougeMM = 0; 
+        public int RougeMM = 0;
         public int KarateB = 0;
         public int KarateS = 0;
         public int KarateE = 0;
@@ -73,8 +73,33 @@ namespace SA2SaveUtility {
         public int KartE = 0;
         public int KartK = 0;
         public int KartR = 0;
+
+        public List<LevelValues> LevelList = new List<LevelValues>();
+        public List<MissionValues> MissionList = new List<MissionValues>();
     }
-    
+
+    public class LevelValues {
+        public string LevelName;
+        public List<MissionValues> Missions = new List<MissionValues>();
+
+        public LevelValues(string name) {
+            LevelName = name;
+        }
+    }
+
+    public class MissionValues {
+        public int Number = 1;
+        public int Grade = 0;
+        public int Plays = 0;
+        public int Rings = 0;
+        public int Score = 0;
+        public TimeSpan Time = TimeSpan.FromSeconds(0);
+
+        public MissionValues(int num) {
+            Number = num;
+        }
+    }
+
     public static class StaticOffsets {
         public static class GameCube {
             public static int TextLanguage = 0x2848;
@@ -157,34 +182,92 @@ namespace SA2SaveUtility {
             public static int BossAttackAll = 0x5CD8;
             public static int AllACannonsCore = 0x5CD9;
         }
+        public static class Missions {
+            public static Dictionary<string, int> StartingOffsets = new Dictionary<string, int>()
+            {
+                { "City Escape", 0x326C },
+                { "Wild Canyon", 0x34B8 },
+                { "Prison Lane", 0x2F5C },
+                { "Metal Harbour", 0x3020 },
+                { "Green Forest", 0x2AC4 },
+                { "Pumpkin Hill", 0x2C4C },
+                { "Mission Street", 0x357C },
+                { "Aquatic Mine", 0x2DD4 },
+                { "Route 101", 0x5668 },
+                { "Hidden Base", 0x3A14 },
+                { "Pyramid Cave", 0x3DE8 },
+                { "Death Chamber", 0x3B9C },
+                { "Eternal Engine", 0x3AD8 },
+                { "Meteor Herd", 0x40F8 },
+                { "Crazy Gadget", 0x3950 },
+                { "Final Rush", 0x3F70 },
+
+                { "Iron Gate", 0x30E4 },
+                { "Dry Lagoon", 0x3640 },
+                { "Sand Ocean", 0x388C },
+                { "Radical Highway", 0x3330 },
+                { "Egg Quarters", 0x3C60 },
+                { "Lost Colony", 0x3D24 },
+                { "Weapons Bed", 0x31A8 },
+                { "Security Hall", 0x2E98 },
+                { "White Jungle", 0x2B88 },
+                { "Route 202", 0x572C },
+                { "Sky Rail", 0x2D10 },
+                { "Mad Space", 0x4A28 },
+                { "Cosmic Wall", 0x4964 },
+                { "Final Chase", 0x4718 },
+
+                { "Cannon's Core", 0x4280 }
+            };
+
+            public static class InternalOffsets {
+                // Level data is stored in 0xAC (172) bytes
+
+                // Grades are 1 byte
+                // 01 = E
+                // 02 = D
+                // 03 = C
+                // 04 = B
+                // 05 = A
+                public static int[] Grades = { 0x00, 0x01, 0x02, 0x03, 0x04, };
+
+                // There is one byte filled with 0x00 after the grades
+                // This is likely so the data aligns to 2-bytes
+                public static int[] BufferGrade = { 0x05 };
+
+
+                // Plays are stored as 2 bytes
+                // 0500 = 5 plays
+                // 0200 = 2 plays
+                public static int[] Plays = { 0x06, 0x08, 0x0A, 0x0C, 0x0E, };
+
+                // Rings are stored as 4 bytes
+                // 5A01 0000 = 346
+                public static int[] Rings = { 0x10, 0x34, 0x58, 0x7C, 0xA0, };
+
+                // Score is stored as 4 bytes
+                // 0C35 0000 = 13580
+                public static int[] Score = { 0x14, 0x38, 0x5C, 0x80, 0xA4, };
+
+                // Time is stored as 3 bytes, 1 byte for each of "minutes", "seconds", and "milliseconds"
+                // 0412 07 -> 04 12 07
+                // 04 = 4 minutes
+                // 12 = 18 seconds
+                // 07 = 0.07 seconds or 70 milliseconds
+                public static int[] Time = { 0x18, 0x3C, 0x60, 0x84, 0xA8, };
+
+                // There is one byte filled with 0x00 after the time
+                // This is likely so the data aligns to 2-bytes
+                public static int[] BufferTime = { 0x1B, 0x3F, 0x63, 0x87, 0xAB, };
+
+                // Blocks of 24 bytes are 2nd and 3rd high score data 
+                public static int[] Unknown = { 0x1C, 0x40, 0x64, 0x88, 0xAC, };
+
+            }
+        }
+
     }
-    public class MissionValues {
-        public uint M1 = 0x00;
-        public uint M2 = 0x01;
-        public uint M3 = 0x02;
-        public uint M4 = 0x03;
-        public uint M5 = 0x04;
-        public uint M1P = 0x06;
-        public uint M2P = 0x08;
-        public uint M3P = 0x0A;
-        public uint M4P = 0x0C;
-        public uint M5P = 0x0E;
-        public uint M1R = 0x10;
-        public uint M1S = 0x14;
-        public uint M1T = 0x18;
-        public uint M2R = 0x34;
-        public uint M2S = 0x38;
-        public uint M2T = 0x3C;
-        public uint M3R = 0x58;
-        public uint M3S = 0x5C;
-        public uint M3T = 0x60;
-        public uint M4R = 0x7C;
-        public uint M4S = 0x80;
-        public uint M4T = 0x84;
-        public uint M5R = 0xA0;
-        public uint M5S = 0xA4;
-        public uint M5T = 0xA8;
-    }
+
     public class KartValues {
         public uint FirstT = 0x00;
         public uint FirstC = 0x03;
