@@ -27,6 +27,7 @@ namespace SA2SaveUtility {
             ReadDeviceSpecificData();
             ReadDeviceAgnosticData();
             ReadMissionData();
+
         }
 
         /// <summary>
@@ -208,7 +209,7 @@ namespace SA2SaveUtility {
                 LevelValues level = new LevelValues(keyValuePair.Key);
                 int levelOffset = keyValuePair.Value;
 
-                // Loop through each mission
+                // Loop through each of the 5 missions
                 for (int m = 0; m < 5; m++) {
                     MissionValues mission = new MissionValues(m + 1);
 
@@ -220,48 +221,41 @@ namespace SA2SaveUtility {
 
                     // Loop through each of the three high scores
                     for (int h = 0; h < 3; h++) {
-                        MissionHighScore highScore = new MissionHighScore(h);
-                        // Read mission time
-                        TimeSpan missionTime = TimeSpan.Zero;
-                        missionTime.Add(TimeSpan.FromMinutes(saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Time[m]]));
-                        missionTime.Add(TimeSpan.FromSeconds(saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Time[m] + 0x01]));
-                        // The fractions of a second are stored as 1/100 of one second
-                        missionTime.Add(TimeSpan.FromSeconds(saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Time[m] + 0x02] / 100));
-
-                        mission.Time = missionTime;
-
-                        // Read rings (Missions 1, 4, and 5)
-                        mission.Rings = saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Rings[m]];
-
-                        // Read score (Missions 1, 4, and 5)
-                        mission.Score = saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Score[m]];
+                        mission.HighScores.Add(ReadHighScore(levelOffset, m, h));
                     }
-
+                    level.Missions.Add(mission);
                 }
                 SavedValues.LevelList.Add(level);
             }
         }
 
-        private MissionHighScore ReadHighScore(int levelOffset, int highScore) {
+        private MissionHighScore ReadHighScore(int levelOffset, int mission, int highScore) {
             MissionHighScore score = new MissionHighScore(highScore);
-            int scoreOffset = levelOffset;
-            scoreOffset += 0x10;
-            scoreOffset += highScore*12;
+            int startOffset = levelOffset;
 
-            // Read rings (Missions 1, 4, and 5)
-            score.Rings = saveFileBytes[scoreOffset + 0x00];
+            // Grades and Plays is 16 bytes
+            startOffset += 0x10;
 
-            // Read score (Missions 1, 4, and 5)
-            score.Score = saveFileBytes[scoreOffset + 0x04];
+            // 36 bytes per mission
+            startOffset += mission * 0x24;
+
+            // 12 bytes per score
+            startOffset += highScore * 0x0C;
+
+            // Read rings
+            score.Rings = saveFileBytes[startOffset + 0x00];
+
+            // Read score
+            score.Score = saveFileBytes[startOffset + 0x04];
 
             // Read mission time
-            TimeSpan missionTime = TimeSpan.Zero;
-            missionTime.Add(TimeSpan.FromMinutes(saveFileBytes[scoreOffset + 0x08]));
-            missionTime.Add(TimeSpan.FromSeconds(saveFileBytes[scoreOffset + 0x09]));
+            TimeSpan highScoreTime = TimeSpan.Zero;
+            highScoreTime.Add(TimeSpan.FromMinutes(saveFileBytes[startOffset + 0x08]));
+            highScoreTime.Add(TimeSpan.FromSeconds(saveFileBytes[startOffset + 0x09]));
             // The fractions of a second are stored as 1/100 of one second
-            missionTime.Add(TimeSpan.FromSeconds(saveFileBytes[scoreOffset + 0x0A] / 100));
+            highScoreTime.Add(TimeSpan.FromSeconds(saveFileBytes[startOffset + 0x0A] / 100));
 
-            score.Time = missionTime;
+            score.Time = highScoreTime;
 
             return score;
         

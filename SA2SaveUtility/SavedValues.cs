@@ -75,7 +75,6 @@ namespace SA2SaveUtility {
         public int KartR = 0;
 
         public List<LevelValues> LevelList = new List<LevelValues>();
-        public List<MissionValues> MissionList = new List<MissionValues>();
     }
 
     public class LevelValues {
@@ -88,14 +87,21 @@ namespace SA2SaveUtility {
     }
 
     public class MissionValues {
-        public int Number = 1;
+        public int Number = 0;
         public int Grade = 0;
         public int Plays = 0;
+        public List<MissionHighScore> HighScores = new List<MissionHighScore>();
+
+        public MissionValues(int num) {
+            Number = num;
+        }
+    }
+    public class MissionHighScore {
+        public int Number = 0;
         public int Rings = 0;
         public int Score = 0;
         public TimeSpan Time = TimeSpan.FromSeconds(0);
-
-        public MissionValues(int num) {
+        public MissionHighScore(int num) {
             Number = num;
         }
     }
@@ -221,7 +227,7 @@ namespace SA2SaveUtility {
             };
 
             public static class InternalOffsets {
-                // Level data is stored in 0xAC (172) bytes
+                // Level data is stored in 0xC0 (192) bytes
 
                 // Grades are 1 byte
                 // 01 = E
