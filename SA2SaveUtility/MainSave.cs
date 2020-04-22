@@ -11,36 +11,8 @@ namespace SA2SaveUtility {
         public static Offsets offsets = new Offsets();
         public static Dictionary<int, TabPage> activeMain = new Dictionary<int, TabPage>();
 
-        public static void ReadDeviceSpecificData() {
-            switch (ReadSave.FromSaveType) {
-                case SaveType.GAMECUBE:
-                    break;
-                case SaveType.PC:
-                    break;
-                case SaveType.RTE:
-                    break;
-                case SaveType.PLAYSTATION:
-                    break;
-                case SaveType.SA:
-                    break;
-                case SaveType.XBOX:
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public static void ReadDeviceAgnosticData() { 
-        
-        }
 
         public static void GetMain() {
-
-            ReadDeviceSpecificData();
-            ReadDeviceAgnosticData();
-
-
-
             if (Main.isPC || Main.isGC) {
                 uc_Main uc = new uc_Main();
                 TabPage tp = new TabPage();
@@ -55,9 +27,7 @@ namespace SA2SaveUtility {
                 if (!Main.isRTE) {
                     header = Main.loadedSave.Skip(0x27).Take(0x19).ToList();
                     tp.Text = Encoding.UTF8.GetString(header.Take(header.IndexOf(0x00)).ToArray());
-                }
-
-                if (Main.isRTE) {
+                } else {
                     tp.Text = "Live Editor";
                 }
 
@@ -70,55 +40,54 @@ namespace SA2SaveUtility {
                 } else {
                     UpdateSave(Main.tc_Main, currentMain, Memory.ReadBytes(offsets.mainMemoryStart, 0x6000));
                 }
-            }
-
-            if (!Main.isPC && !Main.isGC) {
+            } else if (!Main.isPS3) {
                 uint index = 0;
-                if (!Main.isPS3) {
-                    foreach (byte[] main in Main.SplitByteArray(Main.loadedSave.ToArray(), 0x6004)) {
-                        if (BitConverter.ToString(main.Take(4).ToArray()) != "00-00-00-00") {
-                            uc_Main uc = new uc_Main();
-                            TabPage tp = new TabPage();
-                            uc.mainIndex = index;
-                            tp.Controls.Add(uc);
-                            Main.tc_Main.TabPages.Add(tp);
-                            Main.tc_Main.SelectedTab = Main.tc_Main.TabPages[0];
+                foreach (byte[] main in Main.SplitByteArray(Main.loadedSave.ToArray(), 0x6004)) {
+                    if (BitConverter.ToString(main.Take(4).ToArray()) != "00-00-00-00") {
+                        uc_Main uc = new uc_Main();
+                        TabPage tp = new TabPage();
+                        uc.mainIndex = index;
+                        tp.Controls.Add(uc);
+                        Main.tc_Main.TabPages.Add(tp);
+                        Main.tc_Main.SelectedTab = Main.tc_Main.TabPages[0];
 
-                            List<byte> header = new List<byte>(main.Skip(0x2B).Take(0x19));
-                            tp.Text = Encoding.UTF8.GetString(header.Take(header.IndexOf(0x00)).ToArray());
+                        List<byte> header = new List<byte>(main.Skip(0x2B).Take(0x19));
+                        tp.Text = Encoding.UTF8.GetString(header.Take(header.IndexOf(0x00)).ToArray());
 
-                            activeMain.Add(Main.tc_Main.TabPages.IndexOf(tp), tp);
+                        activeMain.Add(Main.tc_Main.TabPages.IndexOf(tp), tp);
 
-                            KeyValuePair<int, TabPage> currentMain = activeMain.Where(x => x.Key == Main.tc_Main.TabPages.IndexOf(tp)).First();
-                            UpdateSave(Main.tc_Main, currentMain, main.ToArray());
-                        }
-                        index++;
+                        KeyValuePair<int, TabPage> currentMain = activeMain.Where(x => x.Key == Main.tc_Main.TabPages.IndexOf(tp)).First();
+                        UpdateSave(Main.tc_Main, currentMain, main.ToArray());
                     }
-                } else {
-                    foreach (byte[] main in Main.SplitByteArray(Main.loadedSave.ToArray(), 0x6008)) {
-                        if (BitConverter.ToString(main.Take(4).ToArray()) != "00-00-00-00") {
-                            uc_Main uc = new uc_Main();
-                            TabPage tp = new TabPage();
-                            uc.mainIndex = index;
-                            tp.Controls.Add(uc);
-                            Main.tc_Main.TabPages.Add(tp);
-                            Main.tc_Main.SelectedTab = Main.tc_Main.TabPages[0];
+                    index++;
+                }
+            } else {
+                uint index = 0;
+                foreach (byte[] main in Main.SplitByteArray(Main.loadedSave.ToArray(), 0x6008)) {
+                    if (BitConverter.ToString(main.Take(4).ToArray()) != "00-00-00-00") {
+                        uc_Main uc = new uc_Main();
+                        TabPage tp = new TabPage();
+                        uc.mainIndex = index;
+                        tp.Controls.Add(uc);
+                        Main.tc_Main.TabPages.Add(tp);
+                        Main.tc_Main.SelectedTab = Main.tc_Main.TabPages[0];
 
-                            List<byte> header = new List<byte>(main.Skip(0x2F).Take(0x19));
-                            tp.Text = Encoding.UTF8.GetString(header.Take(header.IndexOf(0x00)).ToArray());
+                        List<byte> header = new List<byte>(main.Skip(0x2F).Take(0x19));
+                        tp.Text = Encoding.UTF8.GetString(header.Take(header.IndexOf(0x00)).ToArray());
 
-                            activeMain.Add(Main.tc_Main.TabPages.IndexOf(tp), tp);
+                        activeMain.Add(Main.tc_Main.TabPages.IndexOf(tp), tp);
 
-                            KeyValuePair<int, TabPage> currentMain = activeMain.Where(x => x.Key == Main.tc_Main.TabPages.IndexOf(tp)).First();
-                            UpdateSave(Main.tc_Main, currentMain, main.Take(0x04).ToArray().ToList().Concat(main.Skip(0x08).ToArray().ToList()).ToArray());
-                        }
-                        index++;
+                        KeyValuePair<int, TabPage> currentMain = activeMain.Where(x => x.Key == Main.tc_Main.TabPages.IndexOf(tp)).First();
+                        UpdateSave(Main.tc_Main, currentMain, main.Take(0x04).ToArray().ToList().Concat(main.Skip(0x08).ToArray().ToList()).ToArray());
                     }
+                    index++;
                 }
             }
         }
 
         public static void UpdateSave(TabControl tc, KeyValuePair<int, TabPage> currentMain, byte[] save) {
+
+
             if (!Main.isPC && !Main.isGC) {
                 save = save.Skip(0x04).ToArray();
             }
@@ -940,6 +909,7 @@ namespace SA2SaveUtility {
             checkb_KarateExpert.InvokeCheck(() => checkb_KarateExpert.Checked = Convert.ToBoolean(karateE));
             checkb_KarateSuper.InvokeCheck(() => checkb_KarateSuper.Checked = Convert.ToBoolean(karateSu));
         }
+
 
         public static byte[] ByteSwapMain(byte[] save) {
             //Unsure what the following bytes do, however I can't get saves to convert from PC to console with these on different values
