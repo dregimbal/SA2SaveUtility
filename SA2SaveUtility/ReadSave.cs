@@ -224,6 +224,7 @@ namespace SA2SaveUtility {
                 DebugWrite("Reading data for level " + level.LevelName + " at offset " + levelOffset);
                 // Loop through each of the 5 missions
                 for (int m = 0; m < 5; m++) {
+                    DebugWrite("Reading data for level " + level.LevelName + " mission " + m);
                     MissionValues mission = new MissionValues(m);
 
                     // Read mission grade
@@ -256,10 +257,12 @@ namespace SA2SaveUtility {
             startOffset += highScore * 0x0C;
 
             // Read rings
-            score.Rings = ReadInt16(startOffset + 0x00);
+            score.Rings = BitConverter.ToInt16(saveFileBytes.Skip(startOffset).Take(4).Reverse().ToArray(), 0);
+            DebugWrite("Rings: " + score.Rings);
 
             // Read score
-            score.Score = ReadInt16(startOffset + 0x04);
+            score.Score = BitConverter.ToInt32(saveFileBytes.Skip(startOffset + 0x04).Take(4).ToArray(), 0);
+            DebugWrite("Score: " + score.Score);
 
             // Read mission time
             int minutes = saveFileBytes[startOffset + 0x08];
@@ -366,7 +369,42 @@ namespace SA2SaveUtility {
             }
             return BitConverter.ToInt32(bytes, 0);
         }
+        private UInt16 ReadUInt16BE(int offset = 0) {
+            byte[] bytes;
+            bytes = saveFileBytes.Skip(offset).Take(2).Reverse().ToArray();
+            if (BitConverter.ToUInt16(bytes, 0) != 0) {
+                DebugWrite("UInt16 Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = uint" + BitConverter.ToUInt16(bytes, 0) + " or int " + BitConverter.ToInt16(bytes, 0));
+                DebugWrite("UInt16Alt " + BitConverter.ToUInt16(saveFileBytes, offset) + " or " + BitConverter.ToUInt16(bytes, 0));
+            }
+            return BitConverter.ToUInt16(bytes, 0);
+        }
 
+        private UInt16 ReadUInt16(int offset = 0) {
+            byte[] bytes;
+            bytes = saveFileBytes.Skip(offset).Take(2).ToArray();
+            if (BitConverter.ToUInt16(bytes, 0) != 0) {
+                DebugWrite("UInt16 Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = " + BitConverter.ToInt16(bytes, 0) + " or " + BitConverter.ToUInt16(bytes, 0));
+                DebugWrite("UInt16Alt " + BitConverter.ToUInt16(saveFileBytes, offset) + " or " + BitConverter.ToUInt16(bytes, 0));
+            }
+            return BitConverter.ToUInt16(bytes, 0);
+        }
+
+        private UInt32 ReadUInt32BE(int offset = 0) {
+            byte[] bytes;
+            bytes = saveFileBytes.Skip(offset).Take(4).Reverse().ToArray();
+            if (BitConverter.ToUInt32(bytes, 0) != 0) {
+                DebugWrite("UInt32BE Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = uint " + BitConverter.ToUInt32(bytes, 0) + " or int " + BitConverter.ToInt32(bytes, 0));
+            }
+            return BitConverter.ToUInt32(bytes, 0);
+        }
+        private UInt32 ReadUInt32(int offset = 0) {
+            byte[] bytes;
+            bytes = saveFileBytes.Skip(offset).Take(4).ToArray();
+            if (BitConverter.ToUInt32(bytes, 0) != 0) {
+                DebugWrite("UInt32 Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = " + BitConverter.ToInt32(bytes, 0) + " or " + BitConverter.ToUInt32(bytes, 0));
+            }
+            return BitConverter.ToUInt32(bytes, 0);
+        }
 
         /// <summary>
         /// Reads a string from the save file
