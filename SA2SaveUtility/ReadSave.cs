@@ -341,7 +341,9 @@ namespace SA2SaveUtility {
             } else {
                 bytes = saveFileBytes.Skip(offset).Take(2).ToArray();
             }
-            DebugWrite("Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset);
+            if (BitConverter.ToInt16(bytes, 0) != 0) {
+                DebugWrite("Int16 Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = " + BitConverter.ToInt16(bytes, 0) + " or " + BitConverter.ToUInt16(bytes, 0));
+            }
             return BitConverter.ToInt16(bytes, 0);
         }
 
@@ -359,26 +361,12 @@ namespace SA2SaveUtility {
             } else {
                 bytes = saveFileBytes.Skip(offset).Take(4).ToArray();
             }
-            DebugWrite("Reading the following bytes: " + BitConverter.ToString(bytes));
+            if (BitConverter.ToInt32(bytes, 0) != 0) {
+                DebugWrite("Int32 Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = " + BitConverter.ToInt32(bytes, 0) + " or " + BitConverter.ToUInt32(bytes, 0));
+            }
             return BitConverter.ToInt32(bytes, 0);
         }
 
-        /// <summary>
-        /// Reads eight bytes (64 bits) from the save file
-        /// </summary>
-        /// <param name="offset">The number of bytes to skip before reading</param>
-        /// <param name="bigEndian">When true, the value will be read as Big Endian</param>
-        /// <returns>The 8 byte integer</returns>
-        private Int64 ReadInt64(int offset = 0, bool bigEndian = false) {
-            byte[] bytes;
-            if (BitConverter.IsLittleEndian == bigEndian) {
-                bytes = saveFileBytes.Skip(offset).Take(8).Reverse().ToArray();
-            } else {
-                bytes = saveFileBytes.Skip(offset).Take(8).ToArray();
-            }
-            DebugWrite("Reading the following bytes: " + BitConverter.ToString(bytes));
-            return BitConverter.ToInt64(bytes, 0);
-        }
 
         /// <summary>
         /// Reads a string from the save file
