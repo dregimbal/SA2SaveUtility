@@ -26,7 +26,8 @@ namespace SA2SaveUtility {
             // The main function might change the length of the save
             // VerifySaveFileType();
 
-            CorrectCustomOffsets();
+            // The main function removes the header for us
+            // CorrectCustomOffsets();
 
             ReadDeviceSpecificData();
             ReadDeviceAgnosticData();
