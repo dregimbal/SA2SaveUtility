@@ -41,6 +41,7 @@ namespace SA2SaveUtility {
         public static byte[] gcBytes;
         public static byte[] gcFileBytes;
 
+        public static SaveType SaveFileType = SaveType.GAMECUBE;
         public static ReadSave ReadSave = new ReadSave();
         public static WriteSave WriteSave = new WriteSave();
 
@@ -228,7 +229,8 @@ namespace SA2SaveUtility {
                     isRTE = false;
                     isSA = false;
                     isPC = true;
-                    isGC = false;
+                    isGC = false; 
+                    SaveFileType = SaveType.PC;
                     validSave = true;
                     IsMain();
                 } else if (loadedSave.Length == 0x10000) {
@@ -266,6 +268,7 @@ namespace SA2SaveUtility {
                     isPS3 = true;
                     isGC = false;
                     validSave = true;
+                    SaveFileType = SaveType.PLAYSTATION;
                     IsMain();
                 } else if (loadedSave.Length == 0x6040) {
                     ActiveForm.Text = "Sonic Adventure 2 - Save Utility [Editing Gamecube Main Save]";
@@ -277,6 +280,7 @@ namespace SA2SaveUtility {
                     gcBytes = loadedSave.Take(0x40).ToArray();
                     loadedSave = loadedSave.Skip(0x40).ToArray();
                     validSave = true;
+                    SaveFileType = SaveType.GAMECUBE;
                     IsMain();
                 } else if (loadedSave.Length == 0x10040) {
                     ActiveForm.Text = "Sonic Adventure 2 - Save Utility [Editing Gamecube Chao Save]";
@@ -297,19 +301,20 @@ namespace SA2SaveUtility {
                         isPC = true;
                         isGC = false;
                         validSave = true;
+                        SaveFileType = SaveType.PC;
                         IsMain();
                     }
                 }
                 if (validSave) {
                     loadedFile = loadSave.FileName;
                     tsmi_Save.Enabled = true;
+                    ReadSave.InjestSaveFile(loadedSave, SaveFileType);
                 } else {
                     tsmi_SaveCurrentChao.Enabled = false;
                     MessageBox.Show("That doesn't appear to be a Sonic Adventure 2 save file.", "Error loading save file", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     loadedSave = null;
                 }
 
-                ReadSave.InjestSaveFile(loadedSave);
             }
         }
 
