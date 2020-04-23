@@ -18,7 +18,7 @@ namespace SA2SaveUtility {
             SavedValues = new SavedValues();
             FromSaveType = saveFileType;
             saveFileBytes = saveFile;
-
+            DebugWrite("From save type: " + FromSaveType);
             if (saveFileBytes.Length <= 0) {
                 Debug.WriteLine("Save file byte[] length <= 0");
             }
@@ -94,19 +94,19 @@ namespace SA2SaveUtility {
         /// </summary>
         private void ReadDeviceSpecificData() {
             if (Main.ReadSave.FromSaveType == SaveType.PC) {
-                SavedValues.Lives = ReadInt16(StaticOffsets.Main.Lives, true);
-                SavedValues.Rings = ReadInt32(StaticOffsets.Main.Rings, true);
             } else {
-                SavedValues.Lives = ReadInt16(StaticOffsets.Main.Lives, false);
-                SavedValues.Rings = ReadInt32(StaticOffsets.Main.Rings, false);
             }
 
             if (Main.ReadSave.FromSaveType == SaveType.GAMECUBE) {
+                SavedValues.Lives = ReadUInt16BE(StaticOffsets.Main.Lives);
+                SavedValues.Rings = ReadUInt32BE(StaticOffsets.Main.Rings);
                 SavedValues.TextLanguage = saveFileBytes[StaticOffsets.GameCube.TextLanguage];
                 SavedValues.VoiceLanguage = saveFileBytes[StaticOffsets.GameCube.VoiceLanguage];
                 Debug.WriteLine("GC language int is " + SavedValues.TextLanguage);
                 Debug.WriteLine("GC voice language int is " + SavedValues.VoiceLanguage);
             } else {
+                SavedValues.Lives = ReadUInt16LE(StaticOffsets.Main.Lives);
+                SavedValues.Rings = ReadUInt32LE(StaticOffsets.Main.Rings);
                 SavedValues.TextLanguage = saveFileBytes[StaticOffsets.Main.TextLanguage];
                 SavedValues.VoiceLanguage = saveFileBytes[StaticOffsets.Main.VoiceLanguage];
                 Debug.WriteLine("Language int is " + SavedValues.TextLanguage);
@@ -145,7 +145,7 @@ namespace SA2SaveUtility {
         /// </summary>
         private void ReadDeviceAgnosticData() {
             SavedValues.FileTitle = ReadString(0x19, 0x27);
-            DebugWrite("File Title: " + SavedValues.GCFileNumber);
+            DebugWrite("File Title: " + SavedValues.FileTitle);
 
             SavedValues.PlayTimeSpan = ReadTime(StaticOffsets.Main.PlayTime);
             DebugWrite("playTime: " + (int)SavedValues.PlayTimeSpan.TotalHours + ":" + SavedValues.PlayTimeSpan.Minutes + ":" + SavedValues.PlayTimeSpan.Seconds);
@@ -225,18 +225,24 @@ namespace SA2SaveUtility {
                 LevelValues level = new LevelValues(keyValuePair.Key);
                 int levelOffset = keyValuePair.Value;
 
-                DebugWrite("Reading data for level " + level.LevelName + " at offset " + levelOffset);
                 // Loop through each of the 5 missions
                 for (int m = 0; m < 5; m++) {
-                    DebugWrite("Reading data for level " + level.LevelName + " mission " + m);
                     MissionValues mission = new MissionValues(m);
 
                     // Read mission grade
-                    mission.Grade = saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Grades[m]];
+                    mission.Grade = saveFileBytes[levelOffset + m];
+                    DebugWriteOffset("\nReading level " + level.LevelName + " M#" + m + " grade " + Convert.ToInt32(mission.Grade), levelOffset);
+
 
                     // Read number of times played
-                    mission.Plays = saveFileBytes[levelOffset + StaticOffsets.Missions.InternalOffsets.Plays[m]];
-
+                    if (FromSaveType == SaveType.GAMECUBE) {
+                        mission.Plays = ReadUInt16BE(levelOffset + 0x05 + (0x02 * m));
+                    } else {
+                        mission.Plays = ReadUInt16LE(levelOffset + 0x05 + (0x02 * m));
+                    }
+                    if (mission.Plays != 0) {
+                        DebugWriteOffset("Reading mission #" + m + " - plays " + mission.Plays, levelOffset + 0x05 + (0x02 * m));
+                    }
                     // Loop through each of the three high scores
                     for (int h = 0; h < 3; h++) {
                         mission.HighScores.Add(ReadHighScore(levelOffset, m, h));
@@ -260,26 +266,20 @@ namespace SA2SaveUtility {
             // 12 bytes per score
             startOffset += highScore * 0x0C;
 
-            // Read rings
+            // Read ring and score values
             // GC stores as big endian
             // PC stores as little endian
             if (FromSaveType == SaveType.GAMECUBE) {
                 score.Rings = ReadUInt16BE(startOffset);
-            } else {
-                score.Rings = ReadUInt16LE(startOffset);
-            }
-            DebugWrite("Rings: " + score.Rings);
-
-            // Read score
-            // GC stores as big endian
-            // PC stores as little endian
-
-            if (FromSaveType == SaveType.GAMECUBE) {
                 score.Score = ReadUInt32BE(startOffset + 0x04);
             } else {
+                score.Rings = ReadUInt16LE(startOffset);
                 score.Score = ReadUInt32LE(startOffset + 0x04);
             }
-            DebugWrite("Score: " + score.Score);
+            if (score.Rings != 0 || score.Score != 0) {
+                DebugWriteOffset("Reading highscore #" + highScore + " - rings " + score.Rings, startOffset);
+                DebugWriteOffset("Reading highscore #" + highScore + " - score " + score.Score, startOffset + 0x04);
+            }
 
             // Read mission time
             int minutes = saveFileBytes[startOffset + 0x08];
@@ -362,7 +362,7 @@ namespace SA2SaveUtility {
                 bytes = saveFileBytes.Skip(offset).Take(2).ToArray();
             }
             if (BitConverter.ToInt16(bytes, 0) != 0) {
-                DebugWrite("Int16 Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = " + BitConverter.ToInt16(bytes, 0) + " or " + BitConverter.ToUInt16(bytes, 0));
+                DebugWriteOffset("Int16 Reading " + BitConverter.ToString(bytes) + " = Int16 " + BitConverter.ToInt16(bytes, 0) + " or UInt16 " + BitConverter.ToUInt16(bytes, 0), offset);
             }
             return BitConverter.ToInt16(bytes, 0);
         }
@@ -382,7 +382,8 @@ namespace SA2SaveUtility {
                 bytes = saveFileBytes.Skip(offset).Take(4).ToArray();
             }
             if (BitConverter.ToInt32(bytes, 0) != 0) {
-                DebugWrite("Int32 Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = " + BitConverter.ToInt32(bytes, 0) + " or " + BitConverter.ToUInt32(bytes, 0));
+
+                DebugWriteOffset("Int32 Reading " + BitConverter.ToString(bytes) + " = Int32 " + BitConverter.ToInt32(bytes, 0) + " or UInt32 " + BitConverter.ToUInt32(bytes, 0), offset);
             }
             return BitConverter.ToInt32(bytes, 0);
         }
@@ -393,7 +394,7 @@ namespace SA2SaveUtility {
                 bytes = bytes.Reverse().ToArray();
             }
             if (BitConverter.ToUInt16(bytes, 0) != 0) {
-                DebugWrite("UInt16BE Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = UInt " + BitConverter.ToUInt16(bytes, 0) + " or int " + BitConverter.ToInt16(bytes, 0));
+                DebugWriteOffset("UInt16BE Reading " + BitConverter.ToString(bytes) + " = UInt16 " + BitConverter.ToUInt16(bytes, 0) + " or Int16 " + BitConverter.ToInt16(bytes, 0), offset);
             }
             return BitConverter.ToUInt16(bytes, 0);
         }
@@ -404,7 +405,7 @@ namespace SA2SaveUtility {
                 bytes = bytes.Reverse().ToArray();
             }
             if (BitConverter.ToUInt16(bytes, 0) != 0) {
-                DebugWrite("UInt16LE Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = UInt " + BitConverter.ToUInt16(bytes, 0) + " or int " + BitConverter.ToInt16(bytes, 0));
+                DebugWriteOffset("UInt16LE Reading " + BitConverter.ToString(bytes) + " = UInt16 " + BitConverter.ToUInt16(bytes, 0) + " or Int16 " + BitConverter.ToInt16(bytes, 0), offset);
             }
             return BitConverter.ToUInt16(bytes, 0);
         }
@@ -415,7 +416,7 @@ namespace SA2SaveUtility {
                 bytes = bytes.Reverse().ToArray();
             }
             if (BitConverter.ToUInt32(bytes, 0) != 0) {
-                DebugWrite("UInt32LE Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = UInt " + BitConverter.ToUInt32(bytes, 0) + " or int " + BitConverter.ToInt32(bytes, 0));
+                DebugWriteOffset("UInt32LE Reading " + BitConverter.ToString(bytes) + " = UInt32 " + BitConverter.ToUInt32(bytes, 0) + " or Int32 " + BitConverter.ToInt32(bytes, 0), offset);
             }
             return BitConverter.ToUInt32(bytes, 0);
         }
@@ -425,7 +426,8 @@ namespace SA2SaveUtility {
                 bytes = bytes.Reverse().ToArray();
             }
             if (BitConverter.ToUInt32(bytes, 0) != 0) {
-                DebugWrite("UInt32BE Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = UInt " + BitConverter.ToUInt32(bytes, 0) + " or int " + BitConverter.ToInt32(bytes, 0));
+
+                DebugWriteOffset("UInt32BE Reading " + BitConverter.ToString(bytes) + " = UInt32 " + BitConverter.ToUInt32(bytes, 0) + " or Int32 " + BitConverter.ToInt32(bytes, 0), offset);
             }
             return BitConverter.ToUInt32(bytes, 0);
         }
@@ -434,7 +436,7 @@ namespace SA2SaveUtility {
             byte[] bytes;
             bytes = saveFileBytes.Skip(offset).Take(4).ToArray();
             if (BitConverter.ToUInt32(bytes, 0) != 0) {
-                DebugWrite("UInt32 Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = " + BitConverter.ToInt32(bytes, 0) + " or " + BitConverter.ToUInt32(bytes, 0));
+                DebugWriteOffset("UInt32 Reading " + BitConverter.ToString(bytes) + " = UInt32 " + BitConverter.ToUInt32(bytes, 0) + " or Int32 " + BitConverter.ToInt32(bytes, 0), offset);
             }
             return BitConverter.ToUInt32(bytes, 0);
         }
@@ -481,6 +483,22 @@ namespace SA2SaveUtility {
             Debug.WriteLine(message);
         }
 
+        /// <summary>
+        /// Writes a message to the console based on a debug flag
+        /// Converts the offset to hex and adds 0x40 for gamecube saves
+        /// </summary>
+        /// <param name="message">The message to write</param>
+        /// <param name="offset">The offset to include</param>
+        private void DebugWriteOffset(string message, int offset) {
+            if (!DebugLogs) { return; }
+
+            if (FromSaveType == SaveType.GAMECUBE) {
+                message += " - GC offset " + (offset + 0x40) + " (0x" + (offset + 0x40).ToString("X4") + ")";
+            } else {
+                message += " - offset " + offset + " (0x" + offset.ToString("X4") + ")";
+            }
+            Debug.WriteLine(message);
+        }
     }
 
     public enum SaveType {

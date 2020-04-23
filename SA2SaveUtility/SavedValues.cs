@@ -14,91 +14,91 @@ namespace SA2SaveUtility {
         public string FileTitle = "Sonic Adventure 2 Save";
         public TimeSpan PlayTimeSpan = TimeSpan.FromSeconds(0);
         public TimeSpan EmblemResultsTimeSpan = TimeSpan.FromSeconds(0);
-        public Int16 Lives = 0;
-        public Int32 Rings = 0;
-        public int TextLanguage = 0;
-        public int VoiceLanguage = 0;
+        public UInt16 Lives = 0;
+        public UInt32 Rings = 0;
+        public byte TextLanguage = 0;
+        public byte VoiceLanguage = 0;
 
         // Chao World Characters
-        public int SonicCW = 0;
-        public int TailsCW = 0;
-        public int KnucklesCW = 0;
-        public int ShadowCW = 0;
-        public int EggmanCW = 0;
-        public int RougeCW = 0;
+        public byte SonicCW = 0;
+        public byte TailsCW = 0;
+        public byte KnucklesCW = 0;
+        public byte ShadowCW = 0;
+        public byte EggmanCW = 0;
+        public byte RougeCW = 0;
 
         // Upgrades
-        public int SonicLS = 0;
-        public int SonicAL = 0;
-        public int SonicMG = 0;
-        public int SonicFR = 0;
-        public int SonicBB = 0;
-        public int SonicMM = 0;
+        public byte SonicLS = 0;
+        public byte SonicAL = 0;
+        public byte SonicMG = 0;
+        public byte SonicFR = 0;
+        public byte SonicBB = 0;
+        public byte SonicMM = 0;
 
-        public int TailsBo = 0;
-        public int TailsBa = 0;
-        public int TailsL = 0;
-        public int TailsMM = 0;
+        public byte TailsBo = 0;
+        public byte TailsBa = 0;
+        public byte TailsL = 0;
+        public byte TailsMM = 0;
 
-        public int KnucklesSC = 0;
-        public int KnucklesS = 0;
-        public int KnucklesHG = 0;
-        public int KnucklesAN = 0;
-        public int KnucklesMM = 0;
+        public byte KnucklesSC = 0;
+        public byte KnucklesS = 0;
+        public byte KnucklesHG = 0;
+        public byte KnucklesAN = 0;
+        public byte KnucklesMM = 0;
 
-        public int ShadowAS = 0;
-        public int ShadowAL = 0;
-        public int ShadowFR = 0;
-        public int ShadowMM = 0;
+        public byte ShadowAS = 0;
+        public byte ShadowAL = 0;
+        public byte ShadowFR = 0;
+        public byte ShadowMM = 0;
 
-        public int EggmanJE = 0;
-        public int EggmanLC = 0;
-        public int EggmanLB = 0;
-        public int EggmanPA = 0;
-        public int EggmanMM = 0;
+        public byte EggmanJE = 0;
+        public byte EggmanLC = 0;
+        public byte EggmanLB = 0;
+        public byte EggmanPA = 0;
+        public byte EggmanMM = 0;
 
-        public int RougePN = 0;
-        public int RougeTS = 0;
-        public int RougeIB = 0;
-        public int RougeMM = 0;
+        public byte RougePN = 0;
+        public byte RougeTS = 0;
+        public byte RougeIB = 0;
+        public byte RougeMM = 0;
 
         // Chao Karate
-        public int KarateB = 0;
-        public int KarateS = 0;
-        public int KarateE = 0;
-        public int KarateSu = 0;
+        public byte KarateB = 0;
+        public byte KarateS = 0;
+        public byte KarateE = 0;
+        public byte KarateSu = 0;
 
         // Chao Races
-        public int RaceB = 0;
-        public int RaceJ = 0;
-        public int RaceC = 0;
-        public int RaceH = 0;
-        public int RaceD = 0;
+        public byte RaceB = 0;
+        public byte RaceJ = 0;
+        public byte RaceC = 0;
+        public byte RaceH = 0;
+        public byte RaceD = 0;
 
         // Unlocked themes
-        public int ThemeA = 0;
-        public int ThemeM = 0;
-        public int ThemeS = 0;
-        public int ThemeO = 0;
+        public byte ThemeA = 0;
+        public byte ThemeM = 0;
+        public byte ThemeS = 0;
+        public byte ThemeO = 0;
 
         // Green hill
-        public int GreenH = 0;
+        public byte GreenH = 0;
 
         // Kart Racing alt karts
-        public int KartS = 0;
-        public int KartSh = 0;
-        public int KartT = 0;
-        public int KartE = 0;
-        public int KartK = 0;
-        public int KartR = 0;
+        public byte KartS = 0;
+        public byte KartSh = 0;
+        public byte KartT = 0;
+        public byte KartE = 0;
+        public byte KartK = 0;
+        public byte KartR = 0;
 
         // All A Ranks
-        public int ARankSonic = 0;
-        public int ARankShadow = 0;
-        public int ARankTails = 0;
-        public int ARankEggman = 0;
-        public int ARankKnuckles = 0;
-        public int ARankRouge = 0;
+        public byte ARankSonic = 0;
+        public byte ARankShadow = 0;
+        public byte ARankTails = 0;
+        public byte ARankEggman = 0;
+        public byte ARankKnuckles = 0;
+        public byte ARankRouge = 0;
 
         public List<LevelValues> LevelList = new List<LevelValues>();
         public List<KartRace> KartRaces = new List<KartRace>();
@@ -116,8 +116,8 @@ namespace SA2SaveUtility {
 
     public class MissionValues {
         public int Number = 0;
-        public int Grade = 0;
-        public int Plays = 0;
+        public byte Grade = 0;
+        public UInt16 Plays = 0;
         public List<MissionHighScore> HighScores = new List<MissionHighScore>();
 
         public MissionValues(int num) {

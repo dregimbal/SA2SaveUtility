@@ -65,6 +65,18 @@ namespace SA2SaveUtility {
         }
 
         private void WriteDeviceSpecificData() {
+            if (ToSaveType == SaveType.GAMECUBE) {
+                WriteUInt16BE(SavedValues.Lives, StaticOffsets.Main.Lives);
+                WriteUInt32BE(SavedValues.Rings, StaticOffsets.Main.Rings);
+                WriteInt(SavedValues.TextLanguage, StaticOffsets.GameCube.TextLanguage, 1);
+                WriteInt(SavedValues.VoiceLanguage, StaticOffsets.GameCube.VoiceLanguage, 1);
+            } else {
+                WriteUInt16LE(SavedValues.Lives, StaticOffsets.Main.Lives);
+                WriteUInt32LE(SavedValues.Rings, StaticOffsets.Main.Rings);
+                WriteInt(SavedValues.TextLanguage, StaticOffsets.Main.TextLanguage, 1);
+                WriteInt(SavedValues.VoiceLanguage, StaticOffsets.Main.VoiceLanguage, 1);
+
+            }
         }
 
         /// <summary>
@@ -80,71 +92,67 @@ namespace SA2SaveUtility {
             WriteInt(emblemFrames, StaticOffsets.Main.EmblemResultsTime);
 
 
-            WriteInt(SavedValues.Lives, StaticOffsets.Main.Lives, 2);
-            WriteInt(SavedValues.Rings, StaticOffsets.Main.Rings);
-            WriteInt(SavedValues.TextLanguage, StaticOffsets.Main.TextLanguage, 1);
-            WriteInt(SavedValues.VoiceLanguage, StaticOffsets.Main.VoiceLanguage, 1);
+            saveFileBytes[StaticOffsets.Unlocks.Chao.Characters.Sonic] = SavedValues.SonicCW;
+            saveFileBytes[StaticOffsets.Unlocks.Chao.Characters.Tails] = SavedValues.TailsCW;
+            saveFileBytes[StaticOffsets.Unlocks.Chao.Characters.Knuckles] = SavedValues.KnucklesCW;
+            saveFileBytes[StaticOffsets.Unlocks.Chao.Characters.Shadow] = SavedValues.ShadowCW;
+            saveFileBytes[StaticOffsets.Unlocks.Chao.Characters.Eggman] = SavedValues.EggmanCW;
+            saveFileBytes[StaticOffsets.Unlocks.Chao.Characters.Rouge] = SavedValues.RougeCW;
+            saveFileBytes[StaticOffsets.Unlocks.Sonic.LightShoes] = SavedValues.SonicLS;
+            saveFileBytes[StaticOffsets.Unlocks.Sonic.AncientLight] = SavedValues.SonicAL;
+            saveFileBytes[StaticOffsets.Unlocks.Sonic.Magic] = SavedValues.SonicMG;
+            saveFileBytes[StaticOffsets.Unlocks.Sonic.Flame] = SavedValues.SonicFR;
+            saveFileBytes[StaticOffsets.Unlocks.Sonic.Bounce] = SavedValues.SonicBB;
+            saveFileBytes[StaticOffsets.Unlocks.Sonic.MM] = SavedValues.SonicMM;
+            saveFileBytes[StaticOffsets.Unlocks.Tails.Booster] = SavedValues.TailsBo;
+            saveFileBytes[StaticOffsets.Unlocks.Tails.Bazooka] = SavedValues.TailsBa;
+            saveFileBytes[StaticOffsets.Unlocks.Tails.Laser] = SavedValues.TailsL;
+            saveFileBytes[StaticOffsets.Unlocks.Tails.MM] = SavedValues.TailsMM;
+            saveFileBytes[StaticOffsets.Unlocks.Knuckles.Shovel] = SavedValues.KnucklesSC;
+            saveFileBytes[StaticOffsets.Unlocks.Knuckles.Sun] = SavedValues.KnucklesS;
+            saveFileBytes[StaticOffsets.Unlocks.Knuckles.Hammer] = SavedValues.KnucklesHG;
+            saveFileBytes[StaticOffsets.Unlocks.Knuckles.Air] = SavedValues.KnucklesAN;
+            saveFileBytes[StaticOffsets.Unlocks.Knuckles.MM] = SavedValues.KnucklesMM;
+            saveFileBytes[StaticOffsets.Unlocks.Shadow.Air] = SavedValues.ShadowAS;
+            saveFileBytes[StaticOffsets.Unlocks.Shadow.AncientLight] = SavedValues.ShadowAL;
+            saveFileBytes[StaticOffsets.Unlocks.Shadow.Flame] = SavedValues.ShadowFR;
+            saveFileBytes[StaticOffsets.Unlocks.Shadow.MM] = SavedValues.ShadowMM;
+            saveFileBytes[StaticOffsets.Unlocks.Eggman.Jet] = SavedValues.EggmanJE;
+            saveFileBytes[StaticOffsets.Unlocks.Eggman.Cannon] = SavedValues.EggmanLC;
+            saveFileBytes[StaticOffsets.Unlocks.Eggman.Laser] = SavedValues.EggmanLB;
+            saveFileBytes[StaticOffsets.Unlocks.Eggman.Armor] = SavedValues.EggmanPA;
+            saveFileBytes[StaticOffsets.Unlocks.Eggman.MM] = SavedValues.EggmanMM;
+            saveFileBytes[StaticOffsets.Unlocks.Rouge.Pick] = SavedValues.RougePN;
+            saveFileBytes[StaticOffsets.Unlocks.Rouge.Treasure] = SavedValues.RougeTS;
+            saveFileBytes[StaticOffsets.Unlocks.Rouge.Boots] = SavedValues.RougeIB;
+            saveFileBytes[StaticOffsets.Unlocks.Rouge.MM] = SavedValues.RougeMM;
+            saveFileBytes[StaticOffsets.Emblems.Chao.Karate.Beginner] = SavedValues.KarateB;
+            saveFileBytes[StaticOffsets.Emblems.Chao.Karate.Standard] = SavedValues.KarateS;
+            saveFileBytes[StaticOffsets.Emblems.Chao.Karate.Expert] = SavedValues.KarateE;
+            saveFileBytes[StaticOffsets.Emblems.Chao.Karate.Super] = SavedValues.KarateSu;
+            saveFileBytes[StaticOffsets.Emblems.Chao.Race.Beginner] = SavedValues.RaceB;
+            saveFileBytes[StaticOffsets.Emblems.Chao.Race.Jewel] = SavedValues.RaceJ;
+            saveFileBytes[StaticOffsets.Emblems.Chao.Race.Challenge] = SavedValues.RaceC;
+            saveFileBytes[StaticOffsets.Emblems.Chao.Race.Hero] = SavedValues.RaceH;
+            saveFileBytes[StaticOffsets.Emblems.Chao.Race.Dark] = SavedValues.RaceD;
+            saveFileBytes[StaticOffsets.Unlocks.Themes.Amy] = SavedValues.ThemeA;
+            saveFileBytes[StaticOffsets.Unlocks.Themes.Maria] = SavedValues.ThemeM;
+            saveFileBytes[StaticOffsets.Unlocks.Themes.Secretary] = SavedValues.ThemeS;
+            saveFileBytes[StaticOffsets.Unlocks.Themes.Omochao] = SavedValues.ThemeO;
+            saveFileBytes[StaticOffsets.Main.GreenHill] = SavedValues.GreenH;
+            saveFileBytes[StaticOffsets.Unlocks.Kart.KartSonic] = SavedValues.KartS;
+            saveFileBytes[StaticOffsets.Unlocks.Kart.KartShadow] = SavedValues.KartSh;
+            saveFileBytes[StaticOffsets.Unlocks.Kart.KartTails] = SavedValues.KartT;
+            saveFileBytes[StaticOffsets.Unlocks.Kart.KartEggman] = SavedValues.KartE;
+            saveFileBytes[StaticOffsets.Unlocks.Kart.KartKnuckles] = SavedValues.KartK;
+            saveFileBytes[StaticOffsets.Unlocks.Kart.KartRouge] = SavedValues.KartR;
+            saveFileBytes[StaticOffsets.Emblems.AllARanks.Sonic] = SavedValues.ARankSonic;
+            saveFileBytes[StaticOffsets.Emblems.AllARanks.Shadow] = SavedValues.ARankShadow;
+            saveFileBytes[StaticOffsets.Emblems.AllARanks.Tails] = SavedValues.ARankTails;
+            saveFileBytes[StaticOffsets.Emblems.AllARanks.Eggman] = SavedValues.ARankEggman;
+            saveFileBytes[StaticOffsets.Emblems.AllARanks.Knuckles] = SavedValues.ARankKnuckles;
+            saveFileBytes[StaticOffsets.Emblems.AllARanks.Rouge] = SavedValues.ARankRouge;
 
-            WriteInt(SavedValues.SonicCW, StaticOffsets.Unlocks.Chao.Characters.Sonic, 1);
-            WriteInt(SavedValues.TailsCW, StaticOffsets.Unlocks.Chao.Characters.Tails, 1);
-            WriteInt(SavedValues.KnucklesCW, StaticOffsets.Unlocks.Chao.Characters.Knuckles, 1);
-            WriteInt(SavedValues.ShadowCW, StaticOffsets.Unlocks.Chao.Characters.Shadow, 1);
-            WriteInt(SavedValues.EggmanCW, StaticOffsets.Unlocks.Chao.Characters.Eggman, 1);
-            WriteInt(SavedValues.RougeCW, StaticOffsets.Unlocks.Chao.Characters.Rouge, 1);
-            WriteInt(SavedValues.SonicLS, StaticOffsets.Unlocks.Sonic.LightShoes, 1);
-            WriteInt(SavedValues.SonicAL, StaticOffsets.Unlocks.Sonic.AncientLight, 1);
-            WriteInt(SavedValues.SonicMG, StaticOffsets.Unlocks.Sonic.Magic, 1);
-            WriteInt(SavedValues.SonicFR, StaticOffsets.Unlocks.Sonic.Flame, 1);
-            WriteInt(SavedValues.SonicBB, StaticOffsets.Unlocks.Sonic.Bounce, 1);
-            WriteInt(SavedValues.SonicMM, StaticOffsets.Unlocks.Sonic.MM, 1);
-            WriteInt(SavedValues.TailsBo, StaticOffsets.Unlocks.Tails.Booster, 1);
-            WriteInt(SavedValues.TailsBa, StaticOffsets.Unlocks.Tails.Bazooka, 1);
-            WriteInt(SavedValues.TailsL, StaticOffsets.Unlocks.Tails.Laser, 1);
-            WriteInt(SavedValues.TailsMM, StaticOffsets.Unlocks.Tails.MM, 1);
-            WriteInt(SavedValues.KnucklesSC, StaticOffsets.Unlocks.Knuckles.Shovel, 1);
-            WriteInt(SavedValues.KnucklesS, StaticOffsets.Unlocks.Knuckles.Sun, 1);
-            WriteInt(SavedValues.KnucklesHG, StaticOffsets.Unlocks.Knuckles.Hammer, 1);
-            WriteInt(SavedValues.KnucklesAN, StaticOffsets.Unlocks.Knuckles.Air, 1);
-            WriteInt(SavedValues.KnucklesMM, StaticOffsets.Unlocks.Knuckles.MM, 1);
-            WriteInt(SavedValues.ShadowAS, StaticOffsets.Unlocks.Shadow.Air, 1);
-            WriteInt(SavedValues.ShadowAL, StaticOffsets.Unlocks.Shadow.AncientLight, 1);
-            WriteInt(SavedValues.ShadowFR, StaticOffsets.Unlocks.Shadow.Flame, 1);
-            WriteInt(SavedValues.ShadowMM, StaticOffsets.Unlocks.Shadow.MM, 1);
-            WriteInt(SavedValues.EggmanJE, StaticOffsets.Unlocks.Eggman.Jet, 1);
-            WriteInt(SavedValues.EggmanLC, StaticOffsets.Unlocks.Eggman.Cannon, 1);
-            WriteInt(SavedValues.EggmanLB, StaticOffsets.Unlocks.Eggman.Laser, 1);
-            WriteInt(SavedValues.EggmanPA, StaticOffsets.Unlocks.Eggman.Armor, 1);
-            WriteInt(SavedValues.EggmanMM, StaticOffsets.Unlocks.Eggman.MM, 1);
-            WriteInt(SavedValues.RougePN, StaticOffsets.Unlocks.Rouge.Pick, 1);
-            WriteInt(SavedValues.RougeTS, StaticOffsets.Unlocks.Rouge.Treasure, 1);
-            WriteInt(SavedValues.RougeIB, StaticOffsets.Unlocks.Rouge.Boots, 1);
-            WriteInt(SavedValues.RougeMM, StaticOffsets.Unlocks.Rouge.MM, 1);
-            WriteInt(SavedValues.KarateB, StaticOffsets.Emblems.Chao.Karate.Beginner, 1);
-            WriteInt(SavedValues.KarateS, StaticOffsets.Emblems.Chao.Karate.Standard, 1);
-            WriteInt(SavedValues.KarateE, StaticOffsets.Emblems.Chao.Karate.Expert, 1);
-            WriteInt(SavedValues.KarateSu, StaticOffsets.Emblems.Chao.Karate.Super, 1);
-            WriteInt(SavedValues.RaceB, StaticOffsets.Emblems.Chao.Race.Beginner, 1);
-            WriteInt(SavedValues.RaceJ, StaticOffsets.Emblems.Chao.Race.Jewel, 1);
-            WriteInt(SavedValues.RaceC, StaticOffsets.Emblems.Chao.Race.Challenge, 1);
-            WriteInt(SavedValues.RaceH, StaticOffsets.Emblems.Chao.Race.Hero, 1);
-            WriteInt(SavedValues.RaceD, StaticOffsets.Emblems.Chao.Race.Dark, 1);
-            WriteInt(SavedValues.ThemeA, StaticOffsets.Unlocks.Themes.Amy, 1);
-            WriteInt(SavedValues.ThemeM, StaticOffsets.Unlocks.Themes.Maria, 1);
-            WriteInt(SavedValues.ThemeS, StaticOffsets.Unlocks.Themes.Secretary, 1);
-            WriteInt(SavedValues.ThemeO, StaticOffsets.Unlocks.Themes.Omochao, 1);
-            WriteInt(SavedValues.GreenH, StaticOffsets.Main.GreenHill, 1);
-            WriteInt(SavedValues.KartS, StaticOffsets.Unlocks.Kart.KartSonic, 1);
-            WriteInt(SavedValues.KartSh, StaticOffsets.Unlocks.Kart.KartShadow, 1);
-            WriteInt(SavedValues.KartT, StaticOffsets.Unlocks.Kart.KartTails, 1);
-            WriteInt(SavedValues.KartE, StaticOffsets.Unlocks.Kart.KartEggman, 1);
-            WriteInt(SavedValues.KartK, StaticOffsets.Unlocks.Kart.KartKnuckles, 1);
-            WriteInt(SavedValues.KartR, StaticOffsets.Unlocks.Kart.KartRouge, 1);
-            WriteInt(SavedValues.ARankSonic, StaticOffsets.Emblems.AllARanks.Sonic, 1);
-            WriteInt(SavedValues.ARankShadow, StaticOffsets.Emblems.AllARanks.Shadow, 1);
-            WriteInt(SavedValues.ARankTails, StaticOffsets.Emblems.AllARanks.Tails, 1);
-            WriteInt(SavedValues.ARankEggman, StaticOffsets.Emblems.AllARanks.Eggman, 1);
-            WriteInt(SavedValues.ARankKnuckles, StaticOffsets.Emblems.AllARanks.Knuckles, 1);
-            WriteInt(SavedValues.ARankRouge, StaticOffsets.Emblems.AllARanks.Rouge, 1);
         }
 
         /// <summary>
@@ -154,10 +162,20 @@ namespace SA2SaveUtility {
             // Loop through each level
             foreach (LevelValues level in SavedValues.LevelList) {
                 int levelOffset = StaticOffsets.Missions.StartingOffsets.Where(x => x.Key == level.LevelName).First().Value;
-                DebugWrite("Writing " + level.LevelName + " at offset 0x" + levelOffset.ToString("X4"));
+                DebugWriteOffset("Writing level " + level.LevelName, levelOffset);
                 foreach (MissionValues mission in level.Missions) {
-                    WriteInt(mission.Grade, levelOffset + StaticOffsets.Missions.InternalOffsets.Grades[mission.Number], 1);
-                    WriteInt(mission.Plays, levelOffset + StaticOffsets.Missions.InternalOffsets.Plays[mission.Number], 1);
+                    // Grades are one byte
+                    saveFileBytes[levelOffset + mission.Number] = mission.Grade;
+
+                    DebugWriteOffset("Writing plays " + mission.Plays, levelOffset + 0x05 + (0x02 * mission.Number));
+                    if (ToSaveType == SaveType.GAMECUBE) {
+                        // Play count is Big Endian on GameCube
+                        WriteUInt16BE(mission.Plays, levelOffset + 0x05 + (0x02 * mission.Number));
+                    } else {
+                        // Play count is Little Endian on PC
+                        WriteUInt16LE(mission.Plays, levelOffset + 0x05 + (0x02 * mission.Number));
+                    }
+
                     foreach (MissionHighScore highScore in mission.HighScores) {
                         WriteHighScore(levelOffset, mission.Number, highScore);
                     }
@@ -177,21 +195,15 @@ namespace SA2SaveUtility {
             // 12 bytes per score
             startOffset += highScore.Number * 0x0C;
 
-            // Write rings
+            DebugWriteOffset("Writing rings " + highScore.Rings, levelOffset);
+            // Write ring and score values
             // GC stores as big endian
             // PC stores as little endian
             if (ToSaveType == SaveType.GAMECUBE) {
                 WriteUInt16BE(highScore.Rings, startOffset + 0x00);
-            } else {
-                WriteUInt16LE(highScore.Rings, startOffset + 0x00);
-            }
-
-            // Write score
-            // GC stores as big endian
-            // PC stores as little endian
-            if (ToSaveType == SaveType.GAMECUBE) {
                 WriteUInt32BE(highScore.Score, startOffset + 0x04);
             } else {
+                WriteUInt16LE(highScore.Rings, startOffset + 0x00);
                 WriteUInt32LE(highScore.Score, startOffset + 0x04);
             }
 
@@ -209,7 +221,7 @@ namespace SA2SaveUtility {
         private void WriteKartData() {
             foreach (KartRace kartRace in SavedValues.KartRaces) {
                 int levelOffset = StaticOffsets.Karts.StartingOffsets.Where(x => x.Key == kartRace.RaceName).First().Value;
-                DebugWrite("Writing " + kartRace.RaceName + " at offset 0x" + levelOffset.ToString("X4"));
+                DebugWriteOffset("Writing kart race " + kartRace.RaceName, levelOffset);
                 WriteInt(kartRace.Emblem, levelOffset + 0x0C);
                 foreach (KartRaceHighScore highScore in kartRace.Scores) {
                     int raceOffset = levelOffset + (highScore.Number * 0x04);
@@ -222,7 +234,7 @@ namespace SA2SaveUtility {
         private void WriteBossData() {
             foreach (BossAttack bossAttack in SavedValues.BossAttacks) {
                 int levelOffset = StaticOffsets.Boss.StartingOffsets.Where(x => x.Key == bossAttack.BossName).First().Value;
-                DebugWrite("Writing " + bossAttack.BossName + " at offset 0x" + levelOffset.ToString("X4"));
+                DebugWriteOffset("Writing boss attack " + bossAttack.BossName, levelOffset);
                 WriteInt(bossAttack.Emblem, levelOffset + 0x0C);
                 for (int i = 0; i < bossAttack.Times.Count; i++) {
                     // 4 bytes per high score entry
@@ -322,6 +334,23 @@ namespace SA2SaveUtility {
         /// <param name="message">The message to write</param>
         private void DebugWrite(string message) {
             if (!DebugLogs) { return; }
+            Debug.WriteLine(message);
+        }
+
+        /// <summary>
+        /// Writes a message to the console based on a debug flag
+        /// Converts the offset to hex and adds 0x40 for gamecube saves
+        /// </summary>
+        /// <param name="message">The message to write</param>
+        /// <param name="offset">The offset to include</param>
+        private void DebugWriteOffset(string message, int offset) {
+            if (!DebugLogs) { return; }
+
+            if (ToSaveType == SaveType.GAMECUBE) {
+                message += " - GC offset " + (offset + 0x40) + " (0x" + (offset + 0x40).ToString("X4") + ")";
+            } else {
+                message += " - offset " + offset + " (0x" + offset.ToString("X4") + ")";
+            }
             Debug.WriteLine(message);
         }
 
