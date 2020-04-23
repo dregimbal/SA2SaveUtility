@@ -42,7 +42,17 @@ namespace SA2SaveUtility {
         }
 
         private void AllocateSaveFileByteArray() {
-            saveFileBytes = Main.loadedSave;
+
+            //Setup dialog OpenFileDialog for loading save file
+            OpenFileDialog loadSave = new OpenFileDialog();
+            loadSave.Filter = "Sonic Adventure 2 Main/Chao Save|*.*";
+            loadSave.Title = "Load a template";
+
+            if (loadSave.ShowDialog() == DialogResult.OK) {
+                saveFileBytes = File.ReadAllBytes(loadSave.FileName);
+            } else {
+                saveFileBytes = Main.loadedSave;
+            }
             //saveFileBytes = new byte[0x6000];
         }
 
@@ -167,13 +177,13 @@ namespace SA2SaveUtility {
                     // Grades are one byte
                     saveFileBytes[levelOffset + mission.Number] = mission.Grade;
 
-                    DebugWriteOffset("Writing plays " + mission.Plays, levelOffset + 0x05 + (0x02 * mission.Number));
+                    DebugWriteOffset("Writing plays " + mission.Plays, levelOffset + 0x06 + (0x02 * mission.Number));
                     if (ToSaveType == SaveType.GAMECUBE) {
                         // Play count is Big Endian on GameCube
-                        WriteUInt16BE(mission.Plays, levelOffset + 0x05 + (0x02 * mission.Number));
+                        WriteUInt16BE(mission.Plays, levelOffset + 0x06 + (0x02 * mission.Number));
                     } else {
                         // Play count is Little Endian on PC
-                        WriteUInt16LE(mission.Plays, levelOffset + 0x05 + (0x02 * mission.Number));
+                        WriteUInt16LE(mission.Plays, levelOffset + 0x06 + (0x02 * mission.Number));
                     }
 
                     foreach (MissionHighScore highScore in mission.HighScores) {

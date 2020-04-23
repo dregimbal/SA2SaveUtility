@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -14,20 +15,17 @@ namespace SA2SaveUtility {
         private byte[] saveFileBytes = new byte[0];
         private SavedValues SavedValues;
 
-        public void InjestSaveFile(byte[] saveFile, SaveType saveFileType) {
+        public void InjestSaveFile(byte[] saveFile) {
             SavedValues = new SavedValues();
-            FromSaveType = saveFileType;
             saveFileBytes = saveFile;
+            Debug.WriteLine("Save file byte[] length: 0x" + saveFileBytes.Length.ToString("x4"));
             DebugWrite("From save type: " + FromSaveType);
             if (saveFileBytes.Length <= 0) {
                 Debug.WriteLine("Save file byte[] length <= 0");
             }
-            
-            // The main function might change the length of the save
-            // VerifySaveFileType();
 
-            // The main function removes the header for us
-            // CorrectCustomOffsets();
+            VerifySaveFileType();
+            CorrectCustomOffsets();
 
             ReadDeviceSpecificData();
             ReadDeviceAgnosticData();
@@ -145,7 +143,8 @@ namespace SA2SaveUtility {
         /// </summary>
         private void ReadDeviceAgnosticData() {
             SavedValues.FileTitle = ReadString(0x19, 0x27);
-            DebugWrite("File Title: " + SavedValues.FileTitle);
+            Regex rgx = new Regex("[^a-zA-Z0-9 -]");
+            DebugWrite("File Title: " + rgx.Replace(SavedValues.FileTitle, String.Empty));
 
             SavedValues.PlayTimeSpan = ReadTime(StaticOffsets.Main.PlayTime);
             DebugWrite("playTime: " + (int)SavedValues.PlayTimeSpan.TotalHours + ":" + SavedValues.PlayTimeSpan.Minutes + ":" + SavedValues.PlayTimeSpan.Seconds);
@@ -227,21 +226,22 @@ namespace SA2SaveUtility {
 
                 // Loop through each of the 5 missions
                 for (int m = 0; m < 5; m++) {
+                    DebugWriteOffset("\nReading level " + level.LevelName + " M#" + m, levelOffset);
                     MissionValues mission = new MissionValues(m);
 
                     // Read mission grade
-                    mission.Grade = saveFileBytes[levelOffset + m];
-                    DebugWriteOffset("\nReading level " + level.LevelName + " M#" + m + " grade " + Convert.ToInt32(mission.Grade), levelOffset);
-
+                    int gradeOffset = levelOffset + m;
+                    mission.Grade = saveFileBytes[gradeOffset];
+                    DebugWriteOffset("Grade: " + mission.Grade, gradeOffset);
 
                     // Read number of times played
                     if (FromSaveType == SaveType.GAMECUBE) {
-                        mission.Plays = ReadUInt16BE(levelOffset + 0x05 + (0x02 * m));
+                        mission.Plays = ReadUInt16BE(levelOffset + 0x06 + (0x02 * m));
                     } else {
-                        mission.Plays = ReadUInt16LE(levelOffset + 0x05 + (0x02 * m));
+                        mission.Plays = ReadUInt16LE(levelOffset + 0x06 + (0x02 * m));
                     }
                     if (mission.Plays != 0) {
-                        DebugWriteOffset("Reading mission #" + m + " - plays " + mission.Plays, levelOffset + 0x05 + (0x02 * m));
+                        DebugWriteOffset("Plays: " + mission.Plays + " ("+ mission.Plays.ToString("X4") + ")", levelOffset + 0x06 + (0x02 * m));
                     }
                     // Loop through each of the three high scores
                     for (int h = 0; h < 3; h++) {
@@ -346,6 +346,16 @@ namespace SA2SaveUtility {
                 }
                 SavedValues.BossAttacks.Add(boss);
             }
+        }
+
+        /// <summary>
+        /// Reads one byte (8 bits) from the save file
+        /// </summary>
+        /// <returns>The byte</returns>
+        private byte ReadInt8(int offset = 0) {
+            byte bytes = saveFileBytes.Skip(offset).Take(1).First();
+            DebugWriteOffset("Int8 Reading " + bytes.ToString("X1"), offset);
+            return bytes;
         }
 
         /// <summary>
@@ -493,9 +503,9 @@ namespace SA2SaveUtility {
             if (!DebugLogs) { return; }
 
             if (FromSaveType == SaveType.GAMECUBE) {
-                message += " - GC offset " + (offset + 0x40) + " (0x" + (offset + 0x40).ToString("X4") + ")";
+                message += " - GC offset " + (offset + 0x40) + " (0x" + (offset + 0x40).ToString("X4") + ") - 0x" + saveFileBytes[offset].ToString("X4");
             } else {
-                message += " - offset " + offset + " (0x" + offset.ToString("X4") + ")";
+                message += " - offset " + offset + " (0x" + offset.ToString("X4") + ") - 0x" + saveFileBytes[offset].ToString("X4");
             }
             Debug.WriteLine(message);
         }
