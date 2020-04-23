@@ -127,8 +127,8 @@ namespace SA2SaveUtility {
 
     public class MissionHighScore {
         public int Number = 0;
-        public int Rings = 0;
-        public int Score = 0;
+        public UInt16 Rings = 0;
+        public UInt32 Score = 0;
         public TimeSpan Time = TimeSpan.FromSeconds(0);
         public MissionHighScore(int num) {
             Number = num;

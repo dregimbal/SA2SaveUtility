@@ -12,6 +12,7 @@ namespace SA2SaveUtility {
     public class WriteSave {
         private bool DebugLogs = true;
         private string outputDir = Directory.GetParent(Assembly.GetExecutingAssembly().Location).ToString() + @"\output";
+        SaveType ToSaveType = SaveType.PC;
         private byte[] saveFileBytes;
         private SavedValues SavedValues;
 
@@ -64,30 +65,6 @@ namespace SA2SaveUtility {
         }
 
         private void WriteDeviceSpecificData() {
-        }
-
-        private void WriteInt(int data, int offset = 0, int length = 4, bool bigEndian = false) {
-            byte[] dataBytes = BitConverter.GetBytes(data);
-
-            if (BitConverter.IsLittleEndian == bigEndian) {
-                Array.Reverse(dataBytes);
-            }
-            for (int i = 0; i < length; i++) {
-                saveFileBytes[offset + i] = dataBytes[i];
-            }
-
-        }
-
-        private void WriteString(string data, int offset = 0, bool bigEndian = false) {
-            byte[] dataBytes = Encoding.UTF8.GetBytes(data);
-
-            if (BitConverter.IsLittleEndian == bigEndian) {
-                Array.Reverse(dataBytes);
-            }
-            for (int i = 0; i < dataBytes.Length; i++) {
-                saveFileBytes[offset + i] = dataBytes[i];
-            }
-
         }
 
         /// <summary>
@@ -201,10 +178,22 @@ namespace SA2SaveUtility {
             startOffset += highScore.Number * 0x0C;
 
             // Write rings
-            WriteInt(highScore.Rings, startOffset + 0x00);
+            // GC stores as big endian
+            // PC stores as little endian
+            if (ToSaveType == SaveType.GAMECUBE) {
+                WriteUInt16BE(highScore.Rings, startOffset + 0x00);
+            } else {
+                WriteUInt16LE(highScore.Rings, startOffset + 0x00);
+            }
 
             // Write score
-            WriteInt(highScore.Score, startOffset + 0x04);
+            // GC stores as big endian
+            // PC stores as little endian
+            if (ToSaveType == SaveType.GAMECUBE) {
+                WriteUInt32BE(highScore.Score, startOffset + 0x04);
+            } else {
+                WriteUInt32LE(highScore.Score, startOffset + 0x04);
+            }
 
             // Write time
             WriteTime(highScore.Time, startOffset + 0x08);
@@ -257,6 +246,73 @@ namespace SA2SaveUtility {
             DebugWrite("Checksum value is now " + BitConverter.ToString(checksum));
 
             saveFileBytes = newSave.ToArray();
+
+        }
+
+        private void WriteUInt16BE(UInt16 data, int offset = 0) {
+            byte[] dataBytes = BitConverter.GetBytes(data);
+
+            if (BitConverter.IsLittleEndian) {
+                Array.Reverse(dataBytes);
+            }
+            for (int i = 0; i < 2; i++) {
+                saveFileBytes[offset + i] = dataBytes[i];
+            }
+        }
+
+        private void WriteUInt16LE(UInt16 data, int offset = 0) {
+            byte[] dataBytes = BitConverter.GetBytes(data);
+
+            if (!BitConverter.IsLittleEndian) {
+                Array.Reverse(dataBytes);
+            }
+            for (int i = 0; i < 2; i++) {
+                saveFileBytes[offset + i] = dataBytes[i];
+            }
+        }
+
+        private void WriteUInt32BE(UInt32 data, int offset = 0) {
+            byte[] dataBytes = BitConverter.GetBytes(data);
+
+            if (BitConverter.IsLittleEndian) {
+                Array.Reverse(dataBytes);
+            }
+            for (int i = 0; i < 4; i++) {
+                saveFileBytes[offset + i] = dataBytes[i];
+            }
+        }
+
+        private void WriteUInt32LE(UInt32 data, int offset = 0) {
+            byte[] dataBytes = BitConverter.GetBytes(data);
+
+            if (!BitConverter.IsLittleEndian) {
+                Array.Reverse(dataBytes);
+            }
+            for (int i = 0; i < 4; i++) {
+                saveFileBytes[offset + i] = dataBytes[i];
+            }
+        }
+
+        private void WriteInt(int data, int offset = 0, int length = 4, bool bigEndian = false) {
+            byte[] dataBytes = BitConverter.GetBytes(data);
+
+            if (BitConverter.IsLittleEndian == bigEndian) {
+                Array.Reverse(dataBytes);
+            }
+            for (int i = 0; i < length; i++) {
+                saveFileBytes[offset + i] = dataBytes[i];
+            }
+        }
+
+        private void WriteString(string data, int offset = 0, bool bigEndian = false) {
+            byte[] dataBytes = Encoding.UTF8.GetBytes(data);
+
+            if (BitConverter.IsLittleEndian == bigEndian) {
+                Array.Reverse(dataBytes);
+            }
+            for (int i = 0; i < dataBytes.Length; i++) {
+                saveFileBytes[offset + i] = dataBytes[i];
+            }
 
         }
 

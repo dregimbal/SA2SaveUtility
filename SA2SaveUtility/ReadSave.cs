@@ -10,19 +10,22 @@ namespace SA2SaveUtility {
     public class ReadSave {
         public bool DebugLogs = true;
         public SaveType FromSaveType = SaveType.GAMECUBE;
-        public SaveType ToSaveType = SaveType.PC;
         public bool IsChaoSave = false;
         private byte[] saveFileBytes = new byte[0];
         private SavedValues SavedValues;
 
-        public void InjestSaveFile(byte[] saveFile) {
+        public void InjestSaveFile(byte[] saveFile, SaveType saveFileType) {
             SavedValues = new SavedValues();
+            FromSaveType = saveFileType;
             saveFileBytes = saveFile;
 
             if (saveFileBytes.Length <= 0) {
                 Debug.WriteLine("Save file byte[] length <= 0");
             }
-            VerifySaveFileType();
+            
+            // The main function might change the length of the save
+            // VerifySaveFileType();
+
             CorrectCustomOffsets();
 
             ReadDeviceSpecificData();
@@ -257,11 +260,24 @@ namespace SA2SaveUtility {
             startOffset += highScore * 0x0C;
 
             // Read rings
-            score.Rings = BitConverter.ToInt16(saveFileBytes.Skip(startOffset).Take(4).Reverse().ToArray(), 0);
+            // GC stores as big endian
+            // PC stores as little endian
+            if (FromSaveType == SaveType.GAMECUBE) {
+                score.Rings = ReadUInt16BE(startOffset);
+            } else {
+                score.Rings = ReadUInt16LE(startOffset);
+            }
             DebugWrite("Rings: " + score.Rings);
 
             // Read score
-            score.Score = BitConverter.ToInt32(saveFileBytes.Skip(startOffset + 0x04).Take(4).ToArray(), 0);
+            // GC stores as big endian
+            // PC stores as little endian
+
+            if (FromSaveType == SaveType.GAMECUBE) {
+                score.Score = ReadUInt32BE(startOffset + 0x04);
+            } else {
+                score.Score = ReadUInt32LE(startOffset + 0x04);
+            }
             DebugWrite("Score: " + score.Score);
 
             // Read mission time
@@ -369,34 +385,50 @@ namespace SA2SaveUtility {
             }
             return BitConverter.ToInt32(bytes, 0);
         }
+
         private UInt16 ReadUInt16BE(int offset = 0) {
-            byte[] bytes;
-            bytes = saveFileBytes.Skip(offset).Take(2).Reverse().ToArray();
+            byte[] bytes = saveFileBytes.Skip(offset).Take(2).ToArray();
+            if (BitConverter.IsLittleEndian) {
+                bytes = bytes.Reverse().ToArray();
+            }
             if (BitConverter.ToUInt16(bytes, 0) != 0) {
-                DebugWrite("UInt16 Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = uint" + BitConverter.ToUInt16(bytes, 0) + " or int " + BitConverter.ToInt16(bytes, 0));
-                DebugWrite("UInt16Alt " + BitConverter.ToUInt16(saveFileBytes, offset) + " or " + BitConverter.ToUInt16(bytes, 0));
+                DebugWrite("UInt16BE Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = UInt " + BitConverter.ToUInt16(bytes, 0) + " or int " + BitConverter.ToInt16(bytes, 0));
             }
             return BitConverter.ToUInt16(bytes, 0);
         }
 
-        private UInt16 ReadUInt16(int offset = 0) {
-            byte[] bytes;
-            bytes = saveFileBytes.Skip(offset).Take(2).ToArray();
+        private UInt16 ReadUInt16LE(int offset = 0) {
+            byte[] bytes = saveFileBytes.Skip(offset).Take(2).ToArray();
+            if (!BitConverter.IsLittleEndian) {
+                bytes = bytes.Reverse().ToArray();
+            }
             if (BitConverter.ToUInt16(bytes, 0) != 0) {
-                DebugWrite("UInt16 Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = " + BitConverter.ToInt16(bytes, 0) + " or " + BitConverter.ToUInt16(bytes, 0));
-                DebugWrite("UInt16Alt " + BitConverter.ToUInt16(saveFileBytes, offset) + " or " + BitConverter.ToUInt16(bytes, 0));
+                DebugWrite("UInt16LE Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = UInt " + BitConverter.ToUInt16(bytes, 0) + " or int " + BitConverter.ToInt16(bytes, 0));
             }
             return BitConverter.ToUInt16(bytes, 0);
         }
 
-        private UInt32 ReadUInt32BE(int offset = 0) {
-            byte[] bytes;
-            bytes = saveFileBytes.Skip(offset).Take(4).Reverse().ToArray();
+        private UInt32 ReadUInt32LE(int offset = 0) {
+            byte[] bytes = saveFileBytes.Skip(offset).Take(4).ToArray();
+            if (!BitConverter.IsLittleEndian) {
+                bytes = bytes.Reverse().ToArray();
+            }
             if (BitConverter.ToUInt32(bytes, 0) != 0) {
-                DebugWrite("UInt32BE Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = uint " + BitConverter.ToUInt32(bytes, 0) + " or int " + BitConverter.ToInt32(bytes, 0));
+                DebugWrite("UInt32LE Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = UInt " + BitConverter.ToUInt32(bytes, 0) + " or int " + BitConverter.ToInt32(bytes, 0));
             }
             return BitConverter.ToUInt32(bytes, 0);
         }
+        private UInt32 ReadUInt32BE(int offset = 0) {
+            byte[] bytes = saveFileBytes.Skip(offset).Take(4).ToArray();
+            if (BitConverter.IsLittleEndian) {
+                bytes = bytes.Reverse().ToArray();
+            }
+            if (BitConverter.ToUInt32(bytes, 0) != 0) {
+                DebugWrite("UInt32BE Reading the following bytes: " + BitConverter.ToString(bytes) + " from offset " + offset + " (0x" + offset.ToString("X4") + ") which = UInt " + BitConverter.ToUInt32(bytes, 0) + " or int " + BitConverter.ToInt32(bytes, 0));
+            }
+            return BitConverter.ToUInt32(bytes, 0);
+        }
+
         private UInt32 ReadUInt32(int offset = 0) {
             byte[] bytes;
             bytes = saveFileBytes.Skip(offset).Take(4).ToArray();
@@ -424,14 +456,17 @@ namespace SA2SaveUtility {
         /// <returns>A TimeSpan object</returns>
         private TimeSpan ReadTime(int offset = 0) {
             // Time is stored in frames, 1/60 of a second
-            int frames = ReadInt32(offset, false);
-            TimeSpan time = TimeSpan.FromSeconds(frames / 60);
-            if (time.CompareTo(TimeSpan.Zero) < 0) {
-                DebugWrite("Time was negative: " + (int)time.TotalHours + ":" + time.Minutes + ":" + time.Seconds);
-                frames = ReadInt32(offset, true);
-                time = TimeSpan.FromSeconds(frames / 60);
+            UInt32 frames;
+
+            if (FromSaveType == SaveType.GAMECUBE) {
+                frames = ReadUInt32BE(offset);
+            } else {
+                frames = ReadUInt32LE(offset);
             }
+
             DebugWrite("Calculating time from " + frames + " frames");
+
+            TimeSpan time = TimeSpan.FromSeconds(frames / 60);
             DebugWrite("Time: " + (int)time.TotalHours + ":" + time.Minutes + ":" + time.Seconds);
             return time;
         }

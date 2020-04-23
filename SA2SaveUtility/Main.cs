@@ -204,7 +204,6 @@ namespace SA2SaveUtility {
 
                 
                 File.WriteAllBytes(backupsDir + @"\" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + "." + loadSave.SafeFileName, loadedSave.ToArray());
-                ReadSave.InjestSaveFile(loadedSave);
 
                 if (loadedSave.Length == 0xC820) {
                     DialogResult result = MessageBox.Show("Is the save you're loading an SA PC Chao Save?", "PC or 360/PS3 SA Chao Save?", MessageBoxButtons.YesNo);
@@ -309,6 +308,8 @@ namespace SA2SaveUtility {
                     MessageBox.Show("That doesn't appear to be a Sonic Adventure 2 save file.", "Error loading save file", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     loadedSave = null;
                 }
+
+                ReadSave.InjestSaveFile(loadedSave);
             }
         }
 
